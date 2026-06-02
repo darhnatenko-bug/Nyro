@@ -193,6 +193,8 @@ body {
   width: 100%;
   height: 100vh;
   height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--bg-primary);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -331,9 +333,9 @@ body {
   box-shadow: var(--shadow-sheet);
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
-  transform: translateY(calc(100% - 30px));
+  height: calc(100vh + env(safe-area-inset-bottom, 0px));
+  height: calc(100dvh + env(safe-area-inset-bottom, 0px));
+  transform: translateY(calc(100% - 300px));
   transition: transform var(--duration-slow) var(--ease-out),
               z-index 0s,
               border-radius var(--duration-slow) var(--ease-out);
@@ -1198,7 +1200,7 @@ body {
   display: flex;
   position: absolute;
   top: auto;
-  bottom: 42px;
+  bottom: 312px;
   left: var(--space-4);
   z-index: var(--z-fab);
 }
@@ -1206,7 +1208,7 @@ body {
 /* GPS FAB — detached to phone-container when card expands; stays at neutral position */
 .map-action-btn--gps.gps--fixed {
   top: auto;
-  bottom: 42px;
+  bottom: 312px;
   z-index: var(--z-fab);
 }
 
@@ -4085,7 +4087,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 
 /* Sheet stays at the same collapsed position and appearance as neutral */
 .bottom-sheet[data-state="parked"] {
-  transform: translateY(calc(100% - 30px));
+  transform: translateY(calc(100% - 300px));
 }
 
 /* Expanded parked state — same full-screen position as normal expanded */
@@ -4179,6 +4181,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   }
   .dynamic-island { display: block; }
   .top-controls { top: 62px; }
+  .desktop-stage { padding-bottom: 0; }
   .bottom-sheet { height: 852px; transform: translateY(calc(100% - 300px)); }
   .bottom-sheet[data-state="discovery"] { transform: translateY(calc(100% - 96px)); }
   .bottom-sheet[data-state="parked"] { transform: translateY(calc(100% - 300px)); }

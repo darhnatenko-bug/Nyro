@@ -54,13 +54,20 @@ function initGeolocation() {
 }
 
 function initHeading() {
+  let _lastHeadingSource = null;
   function onOrientation(e) {
     if (!_headingEl) return;
+    // Prefer absolute source over relative; ignore relative if absolute already firing
+    if (_lastHeadingSource === 'absolute' && !e.absolute) return;
     let heading = null;
     if (e.webkitCompassHeading != null) {
       heading = e.webkitCompassHeading;                 // iOS
+      _lastHeadingSource = 'absolute';
     } else if (e.absolute && e.alpha != null) {
       heading = (360 - e.alpha) % 360;                  // Android absolute
+      _lastHeadingSource = 'absolute';
+    } else if (e.alpha != null) {
+      heading = (360 - e.alpha) % 360;                  // Android relative fallback
     }
     if (heading === null) return;
     _headingEl.setAttribute('transform', `rotate(${heading}, 37, 37)`);
@@ -68,12 +75,16 @@ function initHeading() {
 
   if (typeof DeviceOrientationEvent === 'undefined') return;
   if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-    // iOS 13+ needs a user gesture to grant permission
-    document.addEventListener('click', function askOnce() {
+    // iOS 13+ — request permission on first user gesture, then listen to both events
+    document.addEventListener('click', () => {
       DeviceOrientationEvent.requestPermission()
-        .then(s => { if (s === 'granted') window.addEventListener('deviceorientationabsolute', onOrientation, true); })
+        .then(s => {
+          if (s === 'granted') {
+            window.addEventListener('deviceorientation', onOrientation, true);
+            window.addEventListener('deviceorientationabsolute', onOrientation, true);
+          }
+        })
         .catch(() => {});
-      document.removeEventListener('click', askOnce);
     }, { once: true });
   } else {
     window.addEventListener('deviceorientationabsolute', onOrientation, true);
@@ -1324,13 +1335,50 @@ function openExternalNav(url) {
 }
 
 // ── QR Scanner ────────────────────────────────────────────────────────
-on($('btn-qr'), 'click', () => {
+let _qrStream = null;
+let _qrTrack  = null;
+let _torchOn  = false;
+
+async function openQRScanner() {
   $('qr-scanner').classList.add('is-open');
   $('qr-scanner').setAttribute('aria-hidden', 'false');
-});
-on($('btn-qr-close'), 'click', () => {
+  try {
+    _qrStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 } },
+      audio: false
+    });
+    const video = $('qr-video');
+    video.srcObject = _qrStream;
+    _qrTrack = _qrStream.getVideoTracks()[0];
+  } catch (err) {
+    console.warn('Camera unavailable:', err);
+  }
+}
+
+function closeQRScanner() {
   $('qr-scanner').classList.remove('is-open');
   $('qr-scanner').setAttribute('aria-hidden', 'true');
+  if (_qrStream) {
+    _qrStream.getTracks().forEach(t => t.stop());
+    _qrStream = null;
+    _qrTrack  = null;
+  }
+  _torchOn = false;
+  $('btn-qr-flash').classList.remove('is-active');
+}
+
+on($('btn-qr'),       'click', openQRScanner);
+on($('btn-qr-close'), 'click', closeQRScanner);
+
+on($('btn-qr-flash'), 'click', async () => {
+  if (!_qrTrack) return;
+  _torchOn = !_torchOn;
+  try {
+    await _qrTrack.applyConstraints({ advanced: [{ torch: _torchOn }] });
+    $('btn-qr-flash').classList.toggle('is-active', _torchOn);
+  } catch (e) {
+    console.warn('Torch not supported:', e);
+  }
 });
 
 on($('btn-route'),          'click', openNavPicker);

@@ -185,19 +185,13 @@ body {
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
-  /* Neutral desktop surface — phone frame stands out against this */
-  background: #DCDCE4;
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
+  background: var(--bg-primary);
+  overflow: hidden;
 }
 
 .desktop-stage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 40px 20px;
+  width: 100%;
+  height: 100dvh;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -206,34 +200,11 @@ body {
 
 .phone-wrap {
   position: relative;
-  /* Dark bezel surrounds the screen */
-  background: linear-gradient(160deg, #2C2C2E 0%, #1C1C1E 60%, #111113 100%);
-  border-radius: 54px;
-  padding: 14px;
-  /* Layered shadow: close contact + long depth + specular edge */
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
-    0 2px 6px  rgba(0, 0, 0, 0.5),
-    0 20px 60px rgba(0, 0, 0, 0.35),
-    0 50px 120px rgba(0, 0, 0, 0.22);
-  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
 }
 
-/* ── Side buttons (purely decorative) ──────────────────────────────── */
-.phone-btn {
-  position: absolute;
-  background: linear-gradient(180deg, #3A3A3C 0%, #2C2C2E 100%);
-  border-radius: 3px;
-}
-
-/* Silent toggle */
-.phone-btn--silent    { left: -5px; top: 108px; width: 4px; height: 28px; border-radius: 2px 0 0 2px; }
-/* Volume up */
-.phone-btn--vol-up    { left: -5px; top: 154px; width: 4px; height: 56px; border-radius: 2px 0 0 2px; }
-/* Volume down */
-.phone-btn--vol-down  { left: -5px; top: 222px; width: 4px; height: 56px; border-radius: 2px 0 0 2px; }
-/* Power */
-.phone-btn--power     { right: -5px; top: 170px; width: 4px; height: 80px; border-radius: 0 2px 2px 0; }
+.phone-btn { display: none; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    PHONE SCREEN — all app UI lives here
@@ -243,10 +214,10 @@ body {
 
 .phone-container {
   position: relative;
-  width: 393px;
-  height: 852px;
-  border-radius: 40px;
-  overflow: hidden;                /* hard clip — nothing escapes the screen */
+  width: 100%;
+  height: 100dvh;
+  border-radius: 0;
+  overflow: hidden;
   background: var(--bg-primary);
   /* Subtle inner bezel line */
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18) inset;
@@ -254,6 +225,7 @@ body {
 
 /* ── Dynamic Island ─────────────────────────────────────────────────── */
 .dynamic-island {
+  display: none;
   position: absolute;
   top: 12px;
   left: 50%;
@@ -357,7 +329,7 @@ body {
   box-shadow: var(--shadow-sheet);
   display: flex;
   flex-direction: column;
-  height: 852px;
+  height: 100dvh;
   transform: translateY(calc(100% - 300px));
   transition: transform var(--duration-slow) var(--ease-out),
               z-index 0s,
@@ -377,10 +349,9 @@ body {
   overflow: hidden;
 }
 
-/* When expanded: give sheet-neutral a fixed height so flex:1 on scrollable-content works */
+/* When expanded: sheet height minus translateY offset (62px) and handle (16px) */
 .bottom-sheet.is-expanded #sheet-neutral {
-  /* 852px sheet - 62px translateY offset - 16px handle = 774px */
-  height: 774px;
+  height: calc(100dvh - 78px);
   overflow: hidden;
 }
 
@@ -1084,7 +1055,7 @@ body {
 
 .top-controls {
   position: absolute;
-  top: 62px;
+  top: max(62px, calc(env(safe-area-inset-top, 0px) + 12px));
   left: 0;
   right: 0;
   z-index: var(--z-fab);
@@ -4146,3 +4117,37 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 /* Hide price pins and cluster markers during active parking session */
 #phone-screen.is-parked .map-pin,
 #phone-screen.is-parked .cluster-marker { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REAL MOBILE — strip the desktop mockup shell, fill the actual screen
+   Triggers on narrow viewports (real phone) or installed PWA
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 500px), (display-mode: standalone) {
+  body {
+    background: var(--bg-primary);
+    overflow: hidden;
+  }
+  .desktop-stage {
+    padding: 0;
+    min-height: 100dvh;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .phone-wrap {
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    width: 100%;
+  }
+  .phone-btn { display: none; }
+  .phone-container {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .dynamic-island { display: none; }
+  .bottom-sheet   { height: 100dvh; }
+}

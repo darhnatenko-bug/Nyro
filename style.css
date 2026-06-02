@@ -16,6 +16,7 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  background: #e8e8e8;
 }
 
 /* ── Design tokens: Light theme (default) ───────────────────────────── */
@@ -191,10 +192,8 @@ body {
 
 .desktop-stage {
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--bg-primary);
+  height: calc(100vh + env(safe-area-inset-bottom, 0px));
+  height: calc(100dvh + env(safe-area-inset-bottom, 0px));
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -3101,7 +3100,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .bottom-sheet[data-state="discovery"] {
-  transform: translateY(calc(100% - 56px));
+  transform: translateY(calc(100% - 58px));
 }
 
 .sheet-section-title {
@@ -4182,7 +4181,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   }
   .dynamic-island { display: block; }
   .top-controls { top: 62px; }
-  .desktop-stage { padding-bottom: 0; }
+  .desktop-stage { height: auto; min-height: 100vh; }
   .bottom-sheet { height: 852px; transform: translateY(calc(100% - 300px)); }
   .bottom-sheet[data-state="discovery"] { transform: translateY(calc(100% - 96px)); }
   .bottom-sheet[data-state="parked"] { transform: translateY(calc(100% - 300px)); }

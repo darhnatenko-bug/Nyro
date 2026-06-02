@@ -334,7 +334,7 @@ body {
   flex-direction: column;
   height: calc(100vh + env(safe-area-inset-bottom, 0px));
   height: calc(100dvh + env(safe-area-inset-bottom, 0px));
-  transform: translateY(calc(100% - 300px));
+  transform: translateY(calc(100% - 300px - env(safe-area-inset-bottom, 0px)));
   transition: transform var(--duration-slow) var(--ease-out),
               z-index 0s,
               border-radius var(--duration-slow) var(--ease-out);
@@ -3100,7 +3100,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .bottom-sheet[data-state="discovery"] {
-  transform: translateY(calc(100% - 80px));
+  transform: translateY(calc(100% - 80px - env(safe-area-inset-bottom, 0px)));
 }
 
 .sheet-section-title {
@@ -4086,7 +4086,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 
 /* Sheet stays at the same collapsed position and appearance as neutral */
 .bottom-sheet[data-state="parked"] {
-  transform: translateY(calc(100% - 300px));
+  transform: translateY(calc(100% - 300px - env(safe-area-inset-bottom, 0px)));
 }
 
 /* Expanded parked state — same full-screen position as normal expanded */
@@ -4185,6 +4185,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   .bottom-sheet { height: 852px; transform: translateY(calc(100% - 300px)); }
   .bottom-sheet[data-state="discovery"] { transform: translateY(calc(100% - 96px)); }
   .bottom-sheet[data-state="parked"] { transform: translateY(calc(100% - 300px)); }
+  .bottom-sheet[data-state="neutral"] { transform: translateY(calc(100% - 300px)); }
   .bottom-sheet.is-expanded #sheet-neutral { height: 774px; }
   #sheet-active-paid:not(.hidden) { height: 774px; }
   .bottom-sheet[data-state="parked"].is-expanded #sheet-parked { height: 774px; }

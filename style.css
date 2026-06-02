@@ -218,8 +218,8 @@ body {
 .phone-container {
   position: relative;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
+  height: calc(100vh + env(safe-area-inset-bottom, 0px));
+  height: calc(100dvh + env(safe-area-inset-bottom, 0px));
   border-radius: 0;
   overflow: hidden;
   background: var(--bg-primary);
@@ -4178,6 +4178,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
     width: 393px;
     height: 852px;
     border-radius: 40px;
+    /* reset safe-area extension for desktop mockup */
   }
   .dynamic-island { display: block; }
   .top-controls { top: 62px; }

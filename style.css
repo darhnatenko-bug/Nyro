@@ -16,8 +16,6 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
-  height: 100%;
-  height: -webkit-fill-available;
 }
 
 /* ── Design tokens: Light theme (default) ───────────────────────────── */
@@ -189,13 +187,11 @@ body {
   line-height: var(--line-height-base);
   background: var(--bg-primary);
   overflow: hidden;
-  height: 100%;
-  min-height: -webkit-fill-available;
 }
 
 .desktop-stage {
   width: 100%;
-  height: 100%;
+  height: 100dvh;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -219,7 +215,7 @@ body {
 .phone-container {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 100dvh;
   border-radius: 0;
   overflow: hidden;
   background: var(--bg-primary);
@@ -333,7 +329,7 @@ body {
   box-shadow: var(--shadow-sheet);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100dvh;
   transform: translateY(calc(100% - 300px));
   transition: transform var(--duration-slow) var(--ease-out),
               z-index 0s,
@@ -355,13 +351,13 @@ body {
 
 /* When expanded: sheet height minus translateY offset (62px) and handle (16px) */
 .bottom-sheet.is-expanded #sheet-neutral {
-  height: calc(100% - 78px);
+  height: calc(100dvh - 78px);
   overflow: hidden;
 }
 
 /* Active session always fills the full sheet height */
 #sheet-active-paid:not(.hidden) {
-  height: calc(100% - 78px);
+  height: calc(100dvh - 78px);
   overflow: hidden;
 }
 #sheet-active-paid:not(.hidden) .sheet-scrollable-content {
@@ -4092,7 +4088,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   transform: translateY(62px);
 }
 .bottom-sheet[data-state="parked"].is-expanded #sheet-parked {
-  height: calc(100% - 78px);
+  height: calc(100dvh - 78px);
   overflow: hidden;
 }
 

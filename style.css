@@ -357,7 +357,7 @@ body {
 
 /* Active session always fills the full sheet height */
 #sheet-active-paid:not(.hidden) {
-  height: 774px;
+  height: calc(100dvh - 78px);
   overflow: hidden;
 }
 #sheet-active-paid:not(.hidden) .sheet-scrollable-content {
@@ -1055,7 +1055,7 @@ body {
 
 .top-controls {
   position: absolute;
-  top: max(62px, calc(env(safe-area-inset-top, 0px) + 12px));
+  top: max(16px, calc(env(safe-area-inset-top, 0px) + 12px));
   left: 0;
   right: 0;
   z-index: var(--z-fab);
@@ -4074,7 +4074,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   transform: translateY(62px);
 }
 .bottom-sheet[data-state="parked"].is-expanded #sheet-parked {
-  height: 774px;
+  height: calc(100dvh - 78px);
   overflow: hidden;
 }
 
@@ -4119,35 +4119,48 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 #phone-screen.is-parked .cluster-marker { display: none; }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   REAL MOBILE — strip the desktop mockup shell, fill the actual screen
-   Triggers on narrow viewports (real phone) or installed PWA
+   DESKTOP — restore the phone-in-browser mockup for development
    ═══════════════════════════════════════════════════════════════════════ */
 
-@media (max-width: 500px), (display-mode: standalone) {
+@media (min-width: 600px) {
   body {
-    background: var(--bg-primary);
-    overflow: hidden;
+    background: #DCDCE4;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
   .desktop-stage {
-    padding: 0;
-    min-height: 100dvh;
-    align-items: stretch;
-    justify-content: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+    height: auto;
+    width: auto;
   }
   .phone-wrap {
-    background: none;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-    width: 100%;
+    position: relative;
+    background: linear-gradient(160deg, #2C2C2E 0%, #1C1C1E 60%, #111113 100%);
+    border-radius: 54px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+      0 2px 6px  rgba(0, 0, 0, 0.5),
+      0 20px 60px rgba(0, 0, 0, 0.35),
+      0 50px 120px rgba(0, 0, 0, 0.22);
+    flex-shrink: 0;
+    width: auto;
+    height: auto;
   }
-  .phone-btn { display: none; }
+  .phone-btn { display: block; }
   .phone-container {
-    width: 100vw;
-    height: 100dvh;
-    border-radius: 0;
-    box-shadow: none;
+    width: 393px;
+    height: 852px;
+    border-radius: 40px;
   }
-  .dynamic-island { display: none; }
-  .bottom-sheet   { height: 100dvh; }
+  .dynamic-island { display: block; }
+  .top-controls { top: 62px; }
+  .bottom-sheet { height: 852px; }
+  .bottom-sheet.is-expanded #sheet-neutral { height: 774px; }
+  #sheet-active-paid:not(.hidden) { height: 774px; }
+  .bottom-sheet[data-state="parked"].is-expanded #sheet-parked { height: 774px; }
 }

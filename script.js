@@ -1443,7 +1443,9 @@ $('search-input').addEventListener('focus', e => {
 });
 
 // Filter chip toggle
+// pointerdown preventDefault keeps input focused on iOS so blur doesn't fire
 document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('pointerdown', e => e.preventDefault());
   chip.addEventListener('click', () => {
     const pressed = chip.getAttribute('aria-pressed') === 'true';
     chip.setAttribute('aria-pressed', String(!pressed));
@@ -1454,26 +1456,29 @@ on($('btn-save-filters'), 'click', () => {
   const btn = $('btn-save-filters');
   const isSaved = btn.dataset.saved === 'true';
   if (isSaved) {
-    // Reset — deselect all chips, revert button
     document.querySelectorAll('.filter-chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
     btn.textContent = 'Зберегти фільтри';
     btn.dataset.saved = 'false';
   } else {
-    // Save — keep chips, change button
     btn.textContent = 'Скинути фільтри';
     btn.dataset.saved = 'true';
   }
 });
+$('btn-save-filters').addEventListener('pointerdown', e => e.preventDefault());
 
 // Clear placeholder before back button causes blur (prevents flash during close transition)
 $('btn-search-back').addEventListener('pointerdown', () => {
   if (searchPanelInput) searchPanelInput.placeholder = '';
 });
 
-// Close when keyboard dismissed or focus leaves the panel
+// Close when focus leaves the panel — guarded against iOS button taps that don't move focus
+let _panelPointerActive = false;
+searchPanel.addEventListener('pointerdown', () => { _panelPointerActive = true; });
+searchPanel.addEventListener('pointerup',   () => { setTimeout(() => { _panelPointerActive = false; }, 300); });
+
 searchPanelInput && searchPanelInput.addEventListener('blur', () => {
   setTimeout(() => {
-    if (!searchPanel.contains(document.activeElement)) {
+    if (!_panelPointerActive && !searchPanel.contains(document.activeElement)) {
       closeSearchPanel();
     }
   }, 150);

@@ -3100,7 +3100,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .bottom-sheet[data-state="discovery"] {
-  transform: translateY(calc(100% - 58px));
+  transform: translateY(calc(100% - 80px));
 }
 
 .sheet-section-title {

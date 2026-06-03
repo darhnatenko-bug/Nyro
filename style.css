@@ -373,6 +373,24 @@ body {
   padding-bottom: 0;
 }
 
+/* Discovery expanded — same scrolling treatment */
+.bottom-sheet.is-expanded #sheet-discovery {
+  height: calc(100vh - 78px);
+  height: calc(100dvh - 78px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 20px;
+}
+.bottom-sheet.is-expanded #sheet-discovery::-webkit-scrollbar { display: none; }
+.bottom-sheet.is-expanded #sheet-discovery .sheet-scrollable-content {
+  flex: initial;
+  min-height: unset;
+  max-height: none;
+  overflow: visible;
+  padding-bottom: 0;
+}
+
 /* Active session always fills the full sheet height */
 #sheet-active-paid:not(.hidden) {
   height: calc(100vh - 78px);
@@ -1142,7 +1160,7 @@ body {
 
 .search-clear-btn {
   position: absolute;
-  right: 48px; /* sits left of the mic button */
+  right: 40px; /* sits left of the mic button */
   top: 0;
   bottom: 0;
   width: 40px;
@@ -3951,12 +3969,16 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 .search-result-card__btn:active { transform: scale(0.91); }
 
 .search-result-card__btn--bookmark {
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
+  background: transparent;
+  color: #000000;
+  padding: 0;
 }
 
 .search-result-card__btn--bookmark.bookmarked {
-  color: var(--status-error);
+  color: #0C0C0C;
+}
+.search-result-card__btn--bookmark.bookmarked svg path:last-child {
+  fill: #141515;
 }
 
 .search-result-card__btn--route {
@@ -4237,6 +4259,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   .bottom-sheet[data-state="parked"] { transform: translateY(calc(100% - 525px)); }
   .bottom-sheet[data-state="neutral"] { transform: translateY(calc(100% - 525px)); }
   .bottom-sheet.is-expanded #sheet-neutral { height: 774px; }
+  .bottom-sheet.is-expanded #sheet-discovery { height: 774px; }
   #sheet-active-paid:not(.hidden) { height: 774px; }
   .bottom-sheet[data-state="parked"].is-expanded #sheet-parked { height: 774px; }
   .map-action-btn--finish.finish--fixed { bottom: 537px; }

@@ -334,7 +334,7 @@ body {
   flex-direction: column;
   height: calc(100vh + env(safe-area-inset-bottom, 0px));
   height: calc(100dvh + env(safe-area-inset-bottom, 0px));
-  transform: translateY(calc(100% - 525px - env(safe-area-inset-bottom, 0px)));
+  transform: translateY(calc(100% - 300px - env(safe-area-inset-bottom, 0px)));
   transition: transform var(--duration-slow) var(--ease-out),
               z-index 0s,
               border-radius var(--duration-slow) var(--ease-out);
@@ -360,7 +360,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding-bottom: 85px;
+  padding-bottom: 135px;
 }
 .bottom-sheet.is-expanded #sheet-neutral::-webkit-scrollbar { display: none; }
 
@@ -404,7 +404,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding-bottom: 85px;
+  padding-bottom: 135px;
 }
 #sheet-active-paid:not(.hidden) .sheet-scrollable-content::-webkit-scrollbar {
   display: none;
@@ -418,7 +418,7 @@ body {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   /* leave room for the .sheet-actions overlay (divider 1px + btn-row ~80px) */
-  padding-bottom: 85px;
+  padding-bottom: 135px;
 }
 
 .bottom-sheet.is-expanded .sheet-scrollable-content::-webkit-scrollbar {
@@ -1250,7 +1250,7 @@ body {
   display: flex;
   position: absolute;
   top: auto;
-  bottom: calc(537px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(312px + env(safe-area-inset-bottom, 0px));
   left: var(--space-4);
   z-index: var(--z-fab);
 }
@@ -1258,7 +1258,7 @@ body {
 /* GPS FAB — detached to phone-container when card expands; stays at neutral position */
 .map-action-btn--gps.gps--fixed {
   top: auto;
-  bottom: 537px;
+  bottom: 312px;
   z-index: var(--z-fab);
 }
 
@@ -1388,6 +1388,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: var(--space-4);
+  padding-bottom: calc(var(--space-4) + 50px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -1612,7 +1613,7 @@ body {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 18px var(--space-4) calc(16px + env(safe-area-inset-bottom, 0px));
+  padding: 18px var(--space-4) calc(66px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -1698,7 +1699,7 @@ body {
   width: 100%;
   /* internal padding (text → button edge) + external gap (button → screen edge) */
   padding: var(--space-3) var(--space-4);
-  margin-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+  margin-bottom: calc(var(--space-5) + 50px + env(safe-area-inset-bottom, 0px));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3420,7 +3421,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .sheet-actions .btn-row {
-  padding: var(--space-3) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-3) var(--space-4) calc(var(--space-5) + 50px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Оплатити is alone in the strip but must stay the same half-row width */
@@ -3832,12 +3833,14 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   gap: var(--space-3);
 }
 
-/* Discovery expanded cards — same spacing as search panel scroll */
+/* Discovery expanded cards — same spacing as search panel scroll.
+   Parent .bottom-sheet__collapsed already has 16px horizontal padding,
+   so no extra left/right padding here (matches search card width). */
 #discovery-cards-scroll {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4) var(--space-6);
+  padding: var(--space-3) 0 var(--space-6);
 }
 
 /* ── Result card ────────────────────────────────────────────────────── */
@@ -4167,7 +4170,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 
 /* Sheet stays at the same collapsed position and appearance as neutral */
 .bottom-sheet[data-state="parked"] {
-  transform: translateY(calc(100% - 525px - env(safe-area-inset-bottom, 0px)));
+  transform: translateY(calc(100% - 300px - env(safe-area-inset-bottom, 0px)));
 }
 
 /* Expanded parked state — same full-screen position as normal expanded */
@@ -4263,16 +4266,16 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   .dynamic-island { display: block; }
   .top-controls { top: 62px; }
   .desktop-stage { height: auto; min-height: 100vh; }
-  .bottom-sheet { height: 852px; transform: translateY(calc(100% - 525px)); }
+  .bottom-sheet { height: 852px; transform: translateY(calc(100% - 300px)); }
   .bottom-sheet[data-state="discovery"] { transform: translateY(calc(100% - 168px)); }
-  .bottom-sheet[data-state="parked"] { transform: translateY(calc(100% - 525px)); }
-  .bottom-sheet[data-state="neutral"] { transform: translateY(calc(100% - 525px)); }
+  .bottom-sheet[data-state="parked"] { transform: translateY(calc(100% - 300px)); }
+  .bottom-sheet[data-state="neutral"] { transform: translateY(calc(100% - 300px)); }
   .bottom-sheet.is-expanded #sheet-neutral { height: 774px; }
   .bottom-sheet.is-expanded #sheet-discovery { height: 774px; }
   #sheet-active-paid:not(.hidden) { height: 774px; }
   .bottom-sheet[data-state="parked"].is-expanded #sheet-parked { height: 774px; }
-  .map-action-btn--finish.finish--fixed { bottom: 537px; }
-  .map-action-btn--gps.gps--fixed { bottom: 537px; }
+  .map-action-btn--finish.finish--fixed { bottom: 312px; }
+  .map-action-btn--gps.gps--fixed { bottom: 312px; }
 }
 
 /* ── Dark theme cleanup overrides ─────────────────────────────────────── */

@@ -47,6 +47,7 @@ function initGeolocation() {
       } else {
         _locationMarker.setLngLat(lngLat);
       }
+      _updateParkBtnState();
     },
     err => console.warn('Geolocation:', err.message),
     { enableHighAccuracy: true, maximumAge: 5000 }
@@ -94,6 +95,23 @@ function initHeading() {
 
 // Rate used by the drum price calculator — updated per lot on card populate
 let _drumRate = 40;
+
+// ── Proximity check for park button ──────────────────────────────────
+const _MAX_PARK_DIST_M = 5;
+
+function _updateParkBtnState() {
+  const btn = $('btn-park');
+  if (!btn) return;
+  let canPark = false;
+  if (_lastKnownPos && _selectedPinLngLat) {
+    const [pLng, pLat] = _selectedPinLngLat;
+    const [uLng, uLat] = _lastKnownPos;
+    const distM = haversineKm(uLat, uLng, pLat, pLng) * 1000;
+    canPark = distM <= _MAX_PARK_DIST_M;
+  }
+  btn.disabled = !canPark;
+  btn.setAttribute('aria-disabled', String(!canPark));
+}
 
 // ── Price parser ──────────────────────────────────────────────────────
 function parsePriceFromDesc(desc) {
@@ -181,9 +199,9 @@ function populateParkingCard(properties) {
   }
   const badge = document.getElementById('time-badge-text');
   if (badge) badge.textContent = _lastKnownPos ? '…' : '—';
-  // Change park button label based on whether parking is chargeable right now
   const parkBtn = $('btn-park');
-  if (parkBtn) parkBtn.textContent = _isCurrentlyChargeable() ? 'Сплатити' : 'Запаркуватись';
+  if (parkBtn) parkBtn.textContent = 'Запаркуватись';
+  _updateParkBtnState();
   // Update drum calculator rate and reset to button state
   const rateMatch = d.price.match(/(\d+)/);
   _drumRate = rateMatch ? parseInt(rateMatch[1]) : 40;
@@ -472,7 +490,7 @@ const _SVG_P = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stro
 const _SVG_WHEELCHAIR = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5105 17.4982C14.2504 18.6305 13.6993 19.6754 12.9117 20.5295C12.1241 21.3836 11.1273 22.0174 10.0197 22.3684C8.9122 22.7193 7.73225 22.7752 6.59649 22.5305C5.46074 22.2859 4.40848 21.7491 3.54368 20.9732C2.67889 20.1974 2.0315 19.2093 1.66548 18.1066C1.29946 17.004 1.22747 15.8249 1.45663 14.6859C1.6858 13.5469 2.20818 12.4874 2.97216 11.6121C3.73614 10.7368 4.71529 10.076 5.81284 9.69498" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="7.5" cy="3.5" r="3.5" fill="currentColor"/><path d="M7.5 4.5L9 15L18.5 14.5L19.5 20.5H21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 9L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const _SVG_LIGHTNING = `<svg width="15" height="20" viewBox="34 1 17 23" fill="none" aria-hidden="true"><path d="M41.31 8.28538L42.6105 2.99082C42.6934 2.65292 42.7349 2.48396 42.6934 2.35098C42.657 2.23441 42.5792 2.1352 42.4747 2.07205C42.3555 2 42.1815 2 41.8335 2H37.9609C37.7434 2 37.6346 2 37.5434 2.03745C37.4629 2.0705 37.3924 2.124 37.3389 2.19265C37.2782 2.27044 37.249 2.37519 37.1904 2.58468L35.1353 9.93873C34.7497 11.3184 34.5569 12.0083 34.714 12.5536C34.8516 13.0314 35.1623 13.4408 35.5854 13.7019C36.0683 14 36.7846 14 38.2172 14H41.332C41.6429 14 41.7983 14 41.9114 14.0627C42.0107 14.1177 42.0883 14.2049 42.1315 14.3099C42.1807 14.4295 42.1627 14.5839 42.1267 14.8926L41.4987 20.2792C41.374 21.3487 41.3117 21.8834 41.4508 22.0487C41.5705 22.1909 41.7592 22.255 41.9407 22.2151C42.1518 22.1686 42.4279 21.7065 42.9801 20.7821L49.1308 10.4865C49.3675 10.0902 49.4859 9.8921 49.4705 9.72913C49.457 9.58702 49.3835 9.45743 49.2684 9.37301C49.1364 9.2762 48.9056 9.2762 48.444 9.2762H42.0869C41.739 9.2762 41.565 9.2762 41.4458 9.20415C41.3413 9.14101 41.2635 9.04179 41.2271 8.92522C41.1855 8.79224 41.227 8.62328 41.31 8.28538Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const _SVG_BOOKMARK = `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M0 10C0 4.47715 4.47715 0 10 0H30C35.5228 0 40 4.47715 40 10V30C40 35.5228 35.5228 40 30 40H10C4.47715 40 0 35.5228 0 30V10Z" fill="#E9E9E9"/><path d="M14 15.5333C14 13.9465 14 13.1531 14.2803 12.547C14.5268 12.0139 14.9202 11.5805 15.404 11.3088C15.9541 11 16.6742 11 18.1143 11H21.8857C23.3258 11 24.0459 11 24.596 11.3088C25.0798 11.5805 25.4732 12.0139 25.7197 12.547C26 13.1531 26 13.9465 26 15.5333V28L20 24.2222L14 28V15.5333Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const _SVG_ROUTE = `<svg width="17" height="18" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>`;
+const _SVG_ROUTE = `<svg width="19" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>`;
 
 function _makeSearchCard(feature) {
   const [lng, lat] = feature.geometry.coordinates;
@@ -1171,6 +1189,7 @@ function showSheet(stateId) {
 }
 
 let _carMarker = null;
+let _expandedFromDiscovery = false;
 
 function enterParkedState() {
   // If GPS was detached to phone-screen (expanded state), return it to sheet immediately
@@ -1322,11 +1341,15 @@ on($('sheet-handle'), 'keydown', e => {
     } else {
       if (deltaY > 0) {
         const wasDiscovery = $('bottom-sheet').dataset.state === 'discovery';
+        if (wasDiscovery) _expandedFromDiscovery = true;
         setExpanded(true);
         if (wasDiscovery) _populateDiscoveryCards();
       } else {
         if (isExpanded) {
+          const fromDiscovery = _expandedFromDiscovery;
+          _expandedFromDiscovery = false;
           setExpanded(false);
+          if (fromDiscovery) $('bottom-sheet').dataset.state = 'discovery';
         } else {
           showSheet('sheet-discovery');
         }
@@ -1658,11 +1681,34 @@ searchPanelInput && searchPanelInput.addEventListener('input', () => {
   clearTimeout(_geoDebounce);
   if (!q) { _hideSuggestions(); if (_isShowingNearby) _revertToRecentlyViewed(); return; }
 
-  // Local index ready — instant prefix filter sorted by distance
+  const qLow = q.toLowerCase();
+  const refLat = _lastKnownPos ? _lastKnownPos[1] : 49.8375;
+  const refLng = _lastKnownPos ? _lastKnownPos[0] : 24.0272;
+
+  // Primary: search GeoJSON parking names — always available after map load, no external requests
+  if (geojsonData) {
+    const seen = new Set();
+    const matches = [];
+    geojsonData.features
+      .filter(f => parseParkingData(f.properties).mainName.toLowerCase().startsWith(qLow))
+      .sort((a, b) => {
+        const [aLng, aLat] = a.geometry.coordinates;
+        const [bLng, bLat] = b.geometry.coordinates;
+        return haversineKm(refLat, refLng, aLat, aLng) - haversineKm(refLat, refLng, bLat, bLng);
+      })
+      .forEach(f => {
+        const d = parseParkingData(f.properties);
+        if (seen.has(d.mainName)) return;
+        seen.add(d.mainName);
+        const [lng, lat] = f.geometry.coordinates;
+        matches.push({ name: d.mainName, lat, lng });
+      });
+    _renderSuggestions(matches.slice(0, 15));
+    return;
+  }
+
+  // Fallback: Overpass local street index
   if (_lvivStreets && _lvivStreets.length > 0) {
-    const qLow = q.toLowerCase();
-    const refLat = _lastKnownPos ? _lastKnownPos[1] : 49.8375;
-    const refLng = _lastKnownPos ? _lastKnownPos[0] : 24.0272;
     const matches = _lvivStreets
       .filter(s => s.name.toLowerCase().startsWith(qLow))
       .sort((a, b) => haversineKm(refLat, refLng, a.lat, a.lng) - haversineKm(refLat, refLng, b.lat, b.lng));
@@ -1670,7 +1716,7 @@ searchPanelInput && searchPanelInput.addEventListener('input', () => {
     return;
   }
 
-  // Fallback: Mapbox geocoding while local index is still loading
+  // Last resort: Mapbox geocoding
   _geoDebounce = setTimeout(() => {
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json`
       + `?proximity=24.0272,49.8375&types=address&language=uk&country=UA`
@@ -1678,7 +1724,6 @@ searchPanelInput && searchPanelInput.addEventListener('input', () => {
     fetch(url)
       .then(r => r.json())
       .then(data => {
-        const qLow = q.toLowerCase();
         const items = (data.features || [])
           .filter(f => f.text && f.text.toLowerCase().startsWith(qLow))
           .map(f => ({ name: f.text, lat: f.center[1], lng: f.center[0] }));

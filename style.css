@@ -4478,3 +4478,57 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 [data-theme="dark"] .pay-prompt__no:active {
   background: #353535;
 }
+
+/* ── Install prompt modal ────────────────────────────────────────────────── */
+
+.install-prompt {
+  position: relative;
+  max-width: 340px;
+  gap: var(--space-4);
+}
+
+.install-prompt__close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.install-prompt__close:hover {
+  color: var(--text-primary);
+}
+
+.install-prompt__subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  padding-top: var(--space-2);
+}
+
+.install-prompt__section {
+  border-left: 3px solid var(--accent);
+  padding-left: var(--space-3);
+}
+
+.install-prompt__section-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2);
+}
+
+.install-prompt__instruction {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-3);
+  line-height: var(--line-height-loose);
+}

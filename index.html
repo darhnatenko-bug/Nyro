@@ -628,15 +628,15 @@
           <div class="account-panel__body">
             <div class="account-field">
               <label class="account-field__label" for="field-name">Повне ім'я</label>
-              <input class="account-field__value" id="field-name" type="text" value="Дарія Миледелліс" autocomplete="name">
+              <input class="account-field__value" id="field-name" type="text" value="Марія Коваленко" autocomplete="name">
             </div>
             <div class="account-field">
               <label class="account-field__label" for="field-email">Email</label>
-              <input class="account-field__value" id="field-email" type="email" value="darianmildellis@gmail.com" autocomplete="email">
+              <input class="account-field__value" id="field-email" type="email" value="maria.kovalenko@gmail.com" autocomplete="email">
             </div>
             <div class="account-field">
               <label class="account-field__label" for="field-phone">Номер телефону</label>
-              <input class="account-field__value" id="field-phone" type="tel" value="+38 (099) 123 45 67" autocomplete="tel">
+              <input class="account-field__value" id="field-phone" type="tel" value="+38 (097) 456 78 90" autocomplete="tel">
             </div>
             <button class="btn btn--secondary btn--full" id="btn-change-password">Змінити пароль</button>
           </div>
@@ -1328,6 +1328,14 @@
   <button class="pay-prompt__no" id="btn-pay-prompt-no">Ні, іншим способом</button>
 </div>
 
+        <!-- End session confirmation popup -->
+<div class="pay-prompt-backdrop" id="end-session-backdrop" aria-hidden="true"></div>
+<div class="pay-prompt" id="end-session-prompt" role="dialog" aria-modal="true" aria-hidden="true">
+  <p class="pay-prompt__title">Ви впевнені що хочете завершити сесію паркування?</p>
+  <button class="btn btn--primary btn--full pay-prompt__yes" id="btn-end-session-yes">Так</button>
+  <button class="pay-prompt__no" id="btn-end-session-no">Ні</button>
+</div>
+
         <!-- Payment success popup -->
         <div class="pay-success" id="pay-success" aria-live="polite" aria-hidden="true">
           <div class="pay-success__icon">
@@ -1590,34 +1598,37 @@
           </div>
         </div>
 
-        <!-- Session success screen -->
-        <div class="session-success hidden" id="screen-success" role="status" aria-live="polite">
-          <div class="session-success__icon-wrap">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
-                 stroke="#0D0D0D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
+        <!-- Install prompt -->
+        <div class="modal-backdrop hidden" id="install-prompt-backdrop" role="dialog" aria-modal="true">
+          <div class="modal install-prompt">
+            <button class="install-prompt__close" id="btn-install-close" aria-label="Закрити">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <p class="modal__title">Встановити Nyro</p>
+            <p class="install-prompt__subtitle">Щоб відкрити без панелі браузера:</p>
+
+            <div class="install-prompt__section">
+              <p class="install-prompt__section-title">📱 iOS (Safari)</p>
+              <p class="install-prompt__instruction">Safari → кнопка
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin: 0 4px;">
+                  <path d="M19 14c0 1.105-1.343 2-3 2H8c-1.657 0-3-.895-3-2"/>
+                  <path d="M6 6h12"/>
+                  <path d="M8 4l-1 2h10l-1-2"/>
+                  <rect x="6" y="4" width="12" height="6" rx="1"/>
+                </svg>
+                → «На початковий екран»</p>
+            </div>
+
+            <div class="install-prompt__section">
+              <p class="install-prompt__section-title">🤖 Android</p>
+              <p class="install-prompt__instruction">Chrome → меню ⋮ → «Встановити застосунок» або «На початковий екран»</p>
+            </div>
+
+            <button class="btn btn--primary btn--full" id="btn-install-done">Зрозумів</button>
           </div>
-          <p class="text-xl font-bold text-primary">Паркування завершено!</p>
-          <div class="card card--padded receipt-card">
-            <div class="receipt-row">
-              <span class="text-sm text-muted">Тривалість</span>
-              <span class="text-sm font-medium text-primary" id="receipt-duration">1 год 12 хв</span>
-            </div>
-            <div class="receipt-row">
-              <span class="text-sm text-muted">Адреса</span>
-              <span class="text-sm font-medium text-primary" id="receipt-address">вул. Городоцька, 357</span>
-            </div>
-            <div class="receipt-row">
-              <span class="text-sm text-muted">Номер авто</span>
-              <span class="text-sm font-medium text-primary">BC 1234 AA</span>
-            </div>
-            <div class="receipt-row receipt-row--total">
-              <span class="text-base font-semibold text-primary">До сплати</span>
-              <span class="text-base font-bold text-accent" id="receipt-total">16.80 грн</span>
-            </div>
-          </div>
-          <button class="btn btn--primary" id="btn-home">На головну</button>
         </div>
 
         <!-- Action buttons — phone-container overlay, always at bottom of screen -->

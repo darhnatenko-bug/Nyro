@@ -47,6 +47,7 @@ function initGeolocation() {
       } else {
         _locationMarker.setLngLat(lngLat);
       }
+      _updateParkBtnState();
     },
     err => console.warn('Geolocation:', err.message),
     { enableHighAccuracy: true, maximumAge: 5000 }
@@ -54,13 +55,20 @@ function initGeolocation() {
 }
 
 function initHeading() {
+  let _lastHeadingSource = null;
   function onOrientation(e) {
     if (!_headingEl) return;
+    // Prefer absolute source over relative; ignore relative if absolute already firing
+    if (_lastHeadingSource === 'absolute' && !e.absolute) return;
     let heading = null;
     if (e.webkitCompassHeading != null) {
       heading = e.webkitCompassHeading;                 // iOS
+      _lastHeadingSource = 'absolute';
     } else if (e.absolute && e.alpha != null) {
       heading = (360 - e.alpha) % 360;                  // Android absolute
+      _lastHeadingSource = 'absolute';
+    } else if (e.alpha != null) {
+      heading = (360 - e.alpha) % 360;                  // Android relative fallback
     }
     if (heading === null) return;
     _headingEl.setAttribute('transform', `rotate(${heading}, 37, 37)`);
@@ -68,12 +76,16 @@ function initHeading() {
 
   if (typeof DeviceOrientationEvent === 'undefined') return;
   if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-    // iOS 13+ needs a user gesture to grant permission
-    document.addEventListener('click', function askOnce() {
+    // iOS 13+ — request permission on first user gesture, then listen to both events
+    document.addEventListener('click', () => {
       DeviceOrientationEvent.requestPermission()
-        .then(s => { if (s === 'granted') window.addEventListener('deviceorientationabsolute', onOrientation, true); })
+        .then(s => {
+          if (s === 'granted') {
+            window.addEventListener('deviceorientation', onOrientation, true);
+            window.addEventListener('deviceorientationabsolute', onOrientation, true);
+          }
+        })
         .catch(() => {});
-      document.removeEventListener('click', askOnce);
     }, { once: true });
   } else {
     window.addEventListener('deviceorientationabsolute', onOrientation, true);
@@ -83,6 +95,17 @@ function initHeading() {
 
 // Rate used by the drum price calculator — updated per lot on card populate
 let _drumRate = 40;
+
+// ── Proximity check for park button ──────────────────────────────────
+const _MAX_PARK_DIST_M = 5;
+
+function _updateParkBtnState() {
+  const btn = $('btn-park');
+  if (!btn) return;
+  let canPark = !!_selectedPinLngLat;
+  btn.disabled = !canPark;
+  btn.setAttribute('aria-disabled', String(!canPark));
+}
 
 // ── Price parser ──────────────────────────────────────────────────────
 function parsePriceFromDesc(desc) {
@@ -170,9 +193,9 @@ function populateParkingCard(properties) {
   }
   const badge = document.getElementById('time-badge-text');
   if (badge) badge.textContent = _lastKnownPos ? '…' : '—';
-  // Change park button label based on whether parking is chargeable right now
   const parkBtn = $('btn-park');
-  if (parkBtn) parkBtn.textContent = _isCurrentlyChargeable() ? 'Сплатити' : 'Запаркуватись';
+  if (parkBtn) parkBtn.textContent = 'Запаркуватись';
+  _updateParkBtnState();
   // Update drum calculator rate and reset to button state
   const rateMatch = d.price.match(/(\d+)/);
   _drumRate = rateMatch ? parseInt(rateMatch[1]) : 40;
@@ -267,7 +290,7 @@ async function drawRoute(origin, dest) {
       id: 'route-line',
       type: 'line', source: 'route',
       layout: { 'line-join': 'round', 'line-cap': 'round' },
-      paint: { 'line-color': '#1A73E8', 'line-width': 6 }
+      paint: { 'line-color': '#AFEE00', 'line-width': 6 }
     }, before);
   } catch (e) {
     console.warn('Route error:', e);
@@ -459,9 +482,9 @@ function _cardPriceHtml(props) {
 
 const _SVG_P = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 17V7h4a2.5 2.5 0 0 1 0 5H9"/></svg>`;
 const _SVG_WHEELCHAIR = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5105 17.4982C14.2504 18.6305 13.6993 19.6754 12.9117 20.5295C12.1241 21.3836 11.1273 22.0174 10.0197 22.3684C8.9122 22.7193 7.73225 22.7752 6.59649 22.5305C5.46074 22.2859 4.40848 21.7491 3.54368 20.9732C2.67889 20.1974 2.0315 19.2093 1.66548 18.1066C1.29946 17.004 1.22747 15.8249 1.45663 14.6859C1.6858 13.5469 2.20818 12.4874 2.97216 11.6121C3.73614 10.7368 4.71529 10.076 5.81284 9.69498" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="7.5" cy="3.5" r="3.5" fill="currentColor"/><path d="M7.5 4.5L9 15L18.5 14.5L19.5 20.5H21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 9L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const _SVG_LIGHTNING = `<svg width="15" height="20" viewBox="34 1 17 23" fill="none" aria-hidden="true"><path d="M41.31 8.28538L42.6105 2.99082C42.6934 2.65292 42.7349 2.48396 42.6934 2.35098C42.657 2.23441 42.5792 2.1352 42.4747 2.07205C42.3555 2 42.1815 2 41.8335 2H37.9609C37.7434 2 37.6346 2 37.5434 2.03745C37.4629 2.0705 37.3924 2.124 37.3389 2.19265C37.2782 2.27044 37.249 2.37519 37.1904 2.58468L35.1353 9.93873C34.7497 11.3184 34.5569 12.0083 34.714 12.5536C34.8516 13.0314 35.1623 13.4408 35.5854 13.7019C36.0683 14 36.7846 14 38.2172 14H41.332C41.6429 14 41.7983 14 41.9114 14.0627C42.0107 14.1177 42.0883 14.2049 42.1315 14.3099C42.1807 14.4295 42.1627 14.5839 42.1267 14.8926L41.4987 20.2792C41.374 21.3487 41.3117 21.8834 41.4508 22.0487C41.5705 22.1909 41.7592 22.255 41.9407 22.2151C42.1518 22.1686 42.4279 21.7065 42.9801 20.7821L49.1308 10.4865C49.3675 10.0902 49.4859 9.8921 49.4705 9.72913C49.457 9.58702 49.3835 9.45743 49.2684 9.37301C49.1364 9.2762 48.9056 9.2762 48.444 9.2762H42.0869C41.739 9.2762 41.565 9.2762 41.4458 9.20415C41.3413 9.14101 41.2635 9.04179 41.2271 8.92522C41.1855 8.79224 41.227 8.62328 41.31 8.28538Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const _SVG_BOOKMARK = `<svg width="14" height="19" viewBox="0 0 14 19" fill="none" aria-hidden="true"><path d="M1 5.53333C1 3.94652 1 3.15311 1.28027 2.54703C1.5268 2.0139 1.92018 1.58046 2.40402 1.30881C2.95408 1 3.67415 1 5.11429 1H8.88571C10.3258 1 11.0459 1 11.596 1.30881C12.0798 1.58046 12.4732 2.0139 12.7197 2.54703C13 3.15311 13 3.94652 13 5.53333V18L7 14.2222L1 18V5.53333Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const _SVG_ROUTE = `<svg width="17" height="17" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>`;
+const _SVG_LIGHTNING = `<svg width="17" height="23" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const _SVG_BOOKMARK = `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M0 10C0 4.47715 4.47715 0 10 0H30C35.5228 0 40 4.47715 40 10V30C40 35.5228 35.5228 40 30 40H10C4.47715 40 0 35.5228 0 30V10Z" fill="#E9E9E9"/><path d="M14 15.5333C14 13.9465 14 13.1531 14.2803 12.547C14.5268 12.0139 14.9202 11.5805 15.404 11.3088C15.9541 11 16.6742 11 18.1143 11H21.8857C23.3258 11 24.0459 11 24.596 11.3088C25.0798 11.5805 25.4732 12.0139 25.7197 12.547C26 13.1531 26 13.9465 26 15.5333V28L20 24.2222L14 28V15.5333Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const _SVG_ROUTE = `<svg width="19" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>`;
 
 function _makeSearchCard(feature) {
   const [lng, lat] = feature.geometry.coordinates;
@@ -518,6 +541,7 @@ function _makeSearchCard(feature) {
 
   card.addEventListener('click', e => {
     if (e.target.closest('.search-result-card__btn--bookmark')) return;
+    if (e.target.closest('.search-result-card__btn--route')) return;
     openParking();
   });
   card.addEventListener('keydown', e => {
@@ -529,6 +553,13 @@ function _makeSearchCard(feature) {
     e.stopPropagation();
     const active = bmBtn.classList.toggle('bookmarked');
     bmBtn.setAttribute('aria-label', active ? 'Видалити з обраних' : 'Зберегти в обране');
+  });
+
+  const routeBtn = card.querySelector('.search-result-card__btn--route');
+  routeBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    _selectedPinLngLat = [lng, lat];
+    openNavPicker();
   });
 
   return card;
@@ -579,6 +610,8 @@ map.on('load', () => {
   loadParkingMarkers();
   _loadLvivStreets(); // start street index early so search is ready faster
   map.once('idle', syncMarkers);
+  // Show install prompt after a delay
+  setTimeout(showInstallPrompt, 2000);
 });
 
 // ── Marker sync event strategy ────────────────────────────────────────
@@ -606,6 +639,27 @@ function queueSyncOnIdle() {
 map.on('zoomend',  queueSyncOnIdle);
 map.on('moveend',  queueSyncOnIdle);
 map.on('pitchend', queueSyncOnIdle);
+
+// ── Install prompt ─────────────────────────────────────────────────────
+function showInstallPrompt() {
+  const backdrop = $('install-prompt-backdrop');
+  if (backdrop) {
+    backdrop.classList.remove('hidden');
+  }
+}
+
+function closeInstallPrompt() {
+  const backdrop = $('install-prompt-backdrop');
+  if (backdrop) {
+    backdrop.classList.add('hidden');
+  }
+}
+
+on($('btn-install-close'), 'click', closeInstallPrompt);
+on($('btn-install-done'), 'click', closeInstallPrompt);
+on($('install-prompt-backdrop'), 'click', (e) => {
+  if (e.target.id === 'install-prompt-backdrop') closeInstallPrompt();
+});
 
 // ── Helpers ───────────────────────────────────────────────────────────
 const $  = id => document.getElementById(id);
@@ -677,6 +731,27 @@ on($('btn-pay-prompt-yes'), 'click', () => { closePayPrompt(); openPaymentPanel(
 on($('btn-pay-prompt-no'),  'click', () => { closePayPrompt(); enterFreeSession(); });
 on($('pay-prompt-backdrop'),'click', closePayPrompt);
 
+// ── End session confirmation ────────────────────────────────────────────
+let _pendingEndSessionCallback = null;
+
+function openEndSessionPrompt() {
+  $('end-session-prompt').classList.add('is-open');
+  $('end-session-backdrop').classList.add('is-open');
+}
+
+function closeEndSessionPrompt() {
+  $('end-session-prompt').classList.remove('is-open');
+  $('end-session-backdrop').classList.remove('is-open');
+  _pendingEndSessionCallback = null;
+}
+
+on($('btn-end-session-yes'), 'click', () => {
+  closeEndSessionPrompt();
+  if (_pendingEndSessionCallback) _pendingEndSessionCallback();
+});
+on($('btn-end-session-no'), 'click', closeEndSessionPrompt);
+on($('end-session-backdrop'), 'click', closeEndSessionPrompt);
+
 // ── Park button → branch on zone ─────────────────────────────────────
 on($('btn-park'), 'click', () => {
   if (_isCurrentlyChargeable()) openPayPrompt();
@@ -684,8 +759,12 @@ on($('btn-park'), 'click', () => {
 });
 
 on($('btn-end-parking'), 'click', () => {
-  if ($('bottom-sheet').dataset.state === 'active-paid') exitPaidSession();
-  else exitParkedState();
+  if ($('bottom-sheet').dataset.state === 'active-paid') {
+    _pendingEndSessionCallback = exitPaidSession;
+  } else {
+    _pendingEndSessionCallback = exitParkedState;
+  }
+  openEndSessionPrompt();
 });
 
 on($('btn-pay-session'), 'click', () => {});
@@ -840,14 +919,15 @@ on($('btn-pay-confirm'), 'click', () => {
     let startY = 0, prevSteps = 0;
     col.style.cursor = 'ns-resize';
     col.style.userSelect = 'none';
-    col.addEventListener('pointerdown', e => { startY = e.clientY; prevSteps = 0; col.setPointerCapture(e.pointerId); e.preventDefault(); });
+    col.style.touchAction = 'none';
+    col.addEventListener('pointerdown', e => { startY = e.clientY; prevSteps = 0; col.setPointerCapture(e.pointerId); e.preventDefault(); e.stopPropagation(); });
     col.addEventListener('pointermove', e => {
       if (!col.hasPointerCapture(e.pointerId)) return;
       const steps = Math.floor(Math.abs(startY - e.clientY) / 24) * Math.sign(startY - e.clientY);
       const delta = steps - prevSteps;
       if (delta) { prevSteps = steps; onChange(delta, false); }
     });
-    col.addEventListener('wheel', e => { e.preventDefault(); onChange(e.deltaY > 0 ? 1 : -1, true); }, { passive: false });
+    col.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); onChange(e.deltaY > 0 ? 1 : -1, true); }, { passive: false });
   }
 
   makeDraggable(colDays,  (d, a) => { days  = wrap(days  + d, MAX_DAYS);  render(a ? Math.sign(d) : 0, 0); });
@@ -1093,7 +1173,6 @@ function exitPaidSession() {
   if (_carMarker) { _carMarker.remove(); _carMarker = null; }
   $('phone-screen').classList.remove('is-parked');
   showSheet('sheet-discovery');
-  openModal(screenSuccess);
 }
 
 on($('btn-extend'),  'click', () => { _isExtending = true; openPaymentPanel(); });
@@ -1119,19 +1198,12 @@ on($('close-yes'), 'click', () => {
 });
 
 // ── Session success screen ────────────────────────────────────────────
-const screenSuccess = $('screen-success');
-
 function showSessionSuccess() {
-  openModal(screenSuccess);
   // Hide active session sheet, restore neutral state
   $('sheet-active-paid').classList.add('hidden');
   $('sheet-neutral').classList.remove('hidden');
-}
-
-on($('btn-home'), 'click', () => {
-  closeModal(screenSuccess);
   showSheet('sheet-discovery');
-});
+}
 
 // ── Price pin → sheet state transition ───────────────────────────────
 function showSheet(stateId) {
@@ -1151,6 +1223,7 @@ function showSheet(stateId) {
 }
 
 let _carMarker = null;
+let _expandedFromDiscovery = false;
 
 function enterParkedState() {
   // If GPS was detached to phone-screen (expanded state), return it to sheet immediately
@@ -1221,14 +1294,20 @@ function setExpanded(expand) {
     phone.insertBefore(gps, sheet);
     gps.classList.add('gps--fixed');
   } else {
-    // After the collapse animation finishes, return GPS to the sheet
-    // so it tracks the card edge again
+    // Keep sheet above FABs (z=20) during the entire collapse animation,
+    // then drop z-index after the transition completes.
+    sheet.style.zIndex = '25';
+    gps.style.opacity = '0';
     setTimeout(() => {
-      if (!sheet.classList.contains('is-expanded') && gps.parentElement === phone) {
-        sheet.insertBefore(gps, sheet.firstChild);
-        gps.classList.remove('gps--fixed');
+      if (!sheet.classList.contains('is-expanded')) {
+        sheet.style.zIndex = '';
+        if (gps.parentElement === phone) {
+          sheet.insertBefore(gps, sheet.firstChild);
+          gps.classList.remove('gps--fixed');
+        }
+        gps.style.opacity = '';
       }
-    }, 400); // matches transition duration
+    }, 430); // slightly after --duration-slow (420ms) so animation is fully done
   }
 }
 
@@ -1280,21 +1359,31 @@ on($('sheet-handle'), 'keydown', e => {
       } else if (deltaY < 0 && isExpanded) {
         // Collapse parked card back to strip
         const sheet = $('bottom-sheet');
+        $('btn-gps').style.opacity = '0';
+        sheet.style.zIndex = '25'; // keep above FABs during collapse animation
         sheet.classList.remove('is-expanded');
         setTimeout(() => {
           if (!sheet.classList.contains('is-expanded')) {
+            sheet.style.zIndex = '';
             sheet.insertBefore($('btn-gps'), sheet.firstChild);
             $('btn-gps').classList.remove('gps--fixed');
+            $('btn-gps').style.opacity = '';
           }
-        }, 400);
+        }, 430);
       }
       // swipe-down while collapsed: do nothing (can't dismiss parked card)
     } else {
       if (deltaY > 0) {
+        const wasDiscovery = $('bottom-sheet').dataset.state === 'discovery';
+        if (wasDiscovery) _expandedFromDiscovery = true;
         setExpanded(true);
+        if (wasDiscovery) _populateDiscoveryCards();
       } else {
         if (isExpanded) {
+          const fromDiscovery = _expandedFromDiscovery;
+          _expandedFromDiscovery = false;
           setExpanded(false);
+          if (fromDiscovery) $('bottom-sheet').dataset.state = 'discovery';
         } else {
           showSheet('sheet-discovery');
         }
@@ -1324,13 +1413,50 @@ function openExternalNav(url) {
 }
 
 // ── QR Scanner ────────────────────────────────────────────────────────
-on($('btn-qr'), 'click', () => {
+let _qrStream = null;
+let _qrTrack  = null;
+let _torchOn  = false;
+
+async function openQRScanner() {
   $('qr-scanner').classList.add('is-open');
   $('qr-scanner').setAttribute('aria-hidden', 'false');
-});
-on($('btn-qr-close'), 'click', () => {
+  try {
+    _qrStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 } },
+      audio: false
+    });
+    const video = $('qr-video');
+    video.srcObject = _qrStream;
+    _qrTrack = _qrStream.getVideoTracks()[0];
+  } catch (err) {
+    console.warn('Camera unavailable:', err);
+  }
+}
+
+function closeQRScanner() {
   $('qr-scanner').classList.remove('is-open');
   $('qr-scanner').setAttribute('aria-hidden', 'true');
+  if (_qrStream) {
+    _qrStream.getTracks().forEach(t => t.stop());
+    _qrStream = null;
+    _qrTrack  = null;
+  }
+  _torchOn = false;
+  $('btn-qr-flash').classList.remove('is-active');
+}
+
+on($('btn-qr'),       'click', openQRScanner);
+on($('btn-qr-close'), 'click', closeQRScanner);
+
+on($('btn-qr-flash'), 'click', async () => {
+  if (!_qrTrack) return;
+  _torchOn = !_torchOn;
+  try {
+    await _qrTrack.applyConstraints({ advanced: [{ torch: _torchOn }] });
+    $('btn-qr-flash').classList.toggle('is-active', _torchOn);
+  } catch (e) {
+    console.warn('Torch not supported:', e);
+  }
 });
 
 on($('btn-route'),          'click', openNavPicker);
@@ -1367,11 +1493,14 @@ on($('btn-bookmark'), 'click', () => {
 // ── Search panel ──────────────────────────────────────────────────────
 const searchPanel = $('search-panel');
 const searchPanelInput = $('search-panel-input');
+const searchClearBtn = $('btn-search-clear');
 
 function openSearchPanel() {
   $('search-input').blur();
   searchPanel.classList.add('is-open');
   searchPanel.setAttribute('aria-hidden', 'false');
+  const actions = $('sheet-actions');
+  if (actions) actions.classList.add('hidden');
   _loadLvivStreets();
   if (searchPanelInput) {
     searchPanelInput.placeholder = 'Пошук парковки...';
@@ -1384,6 +1513,9 @@ function closeSearchPanel() {
   searchPanel.classList.remove('is-open');
   searchPanel.setAttribute('aria-hidden', 'true');
   if (searchPanelInput) searchPanelInput.value = '';
+  if (searchClearBtn) searchClearBtn.classList.add('hidden');
+  const actions = $('sheet-actions');
+  if (actions) actions.classList.remove('hidden');
   _hideSuggestions();
   _revertToRecentlyViewed();
 }
@@ -1394,11 +1526,15 @@ $('search-input').addEventListener('focus', e => {
   openSearchPanel();
 });
 
-// Filter chip toggle
+// Filter chip toggle — re-applies filters immediately if nearby results are shown
 document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('pointerdown', e => e.preventDefault());
   chip.addEventListener('click', () => {
     const pressed = chip.getAttribute('aria-pressed') === 'true';
     chip.setAttribute('aria-pressed', String(!pressed));
+    if (_isShowingNearby && _lastSearchLat !== null) {
+      populateSearchCards(_getNearbyParkings(_lastSearchLat, _lastSearchLng).filter(_parkingPassesFilters));
+    }
   });
 });
 
@@ -1406,26 +1542,32 @@ on($('btn-save-filters'), 'click', () => {
   const btn = $('btn-save-filters');
   const isSaved = btn.dataset.saved === 'true';
   if (isSaved) {
-    // Reset — deselect all chips, revert button
     document.querySelectorAll('.filter-chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
     btn.textContent = 'Зберегти фільтри';
     btn.dataset.saved = 'false';
   } else {
-    // Save — keep chips, change button
     btn.textContent = 'Скинути фільтри';
     btn.dataset.saved = 'true';
   }
+  if (_isShowingNearby && _lastSearchLat !== null) {
+    populateSearchCards(_getNearbyParkings(_lastSearchLat, _lastSearchLng).filter(_parkingPassesFilters));
+  }
 });
+$('btn-save-filters').addEventListener('pointerdown', e => e.preventDefault());
 
 // Clear placeholder before back button causes blur (prevents flash during close transition)
 $('btn-search-back').addEventListener('pointerdown', () => {
   if (searchPanelInput) searchPanelInput.placeholder = '';
 });
 
-// Close when keyboard dismissed or focus leaves the panel
+// Close when focus leaves the panel — guarded against iOS button taps that don't move focus
+let _panelPointerActive = false;
+searchPanel.addEventListener('pointerdown', () => { _panelPointerActive = true; });
+searchPanel.addEventListener('pointerup',   () => { setTimeout(() => { _panelPointerActive = false; }, 300); });
+
 searchPanelInput && searchPanelInput.addEventListener('blur', () => {
   setTimeout(() => {
-    if (!searchPanel.contains(document.activeElement)) {
+    if (!_panelPointerActive && !searchPanel.contains(document.activeElement)) {
       closeSearchPanel();
     }
   }, 150);
@@ -1496,6 +1638,17 @@ function _hideSuggestions() {
   if (_suggestionsEl) { _suggestionsEl.classList.remove('is-open'); _suggestionsEl.innerHTML = ''; }
 }
 
+function _populateDiscoveryCards() {
+  const scroll = $('discovery-cards-scroll');
+  if (!scroll || !geojsonData) return;
+  const center  = map.getCenter();
+  const refLat  = _lastKnownPos ? _lastKnownPos[1] : center.lat;
+  const refLng  = _lastKnownPos ? _lastKnownPos[0] : center.lng;
+  scroll.innerHTML = '';
+  _getNearbyParkings(refLat, refLng).slice(0, 10)
+    .forEach(f => scroll.appendChild(_makeSearchCard(f)));
+}
+
 function _revertToRecentlyViewed() {
   _isShowingNearby = false;
   const hdr = document.querySelector('.search-panel__section-hdr');
@@ -1513,13 +1666,33 @@ function _getNearbyParkings(lat, lng) {
     });
 }
 
+let _lastSearchLat = null, _lastSearchLng = null;
+
+function _getActiveFilters() {
+  return [...document.querySelectorAll('.filter-chip[aria-pressed="true"]')]
+    .map(c => c.dataset.filter).filter(Boolean);
+}
+
+function _parkingPassesFilters(feature) {
+  const active = _getActiveFilters();
+  if (!active.length) return true;
+  const props = feature.properties;
+  for (const f of active) {
+    if (f === 'disabled' && !hasDisabledSpots(props)) return false;
+    // ev / cctv / security: no per-lot data yet — all pass
+  }
+  return true;
+}
+
 function _selectStreet(name, lat, lng) {
   _hideSuggestions();
   if (searchPanelInput) searchPanelInput.value = name;
   _isShowingNearby = true;
+  _lastSearchLat = lat;
+  _lastSearchLng = lng;
   const hdr = document.querySelector('.search-panel__section-hdr');
-  if (hdr) hdr.textContent = 'Паркинки поруч';
-  populateSearchCards(_getNearbyParkings(lat, lng));
+  if (hdr) hdr.textContent = '';
+  populateSearchCards(_getNearbyParkings(lat, lng).filter(_parkingPassesFilters));
   map.flyTo({ center: [lng, lat], zoom: 16, duration: 600 });
 }
 
@@ -1542,14 +1715,43 @@ function _renderSuggestions(items) {
 
 searchPanelInput && searchPanelInput.addEventListener('input', () => {
   const q = (searchPanelInput.value || '').trim();
+  if (searchClearBtn) searchClearBtn.classList.toggle('hidden', !searchPanelInput.value.length);
   clearTimeout(_geoDebounce);
   if (!q) { _hideSuggestions(); if (_isShowingNearby) _revertToRecentlyViewed(); return; }
 
-  // Local index ready — instant prefix filter sorted by distance
+  const qLow = q.toLowerCase();
+  const refLat = _lastKnownPos ? _lastKnownPos[1] : 49.8375;
+  const refLng = _lastKnownPos ? _lastKnownPos[0] : 24.0272;
+
+  // Primary: search GeoJSON parking names — always available after map load, no external requests
+  if (geojsonData) {
+    const seen = new Set();
+    const matches = [];
+    geojsonData.features
+      .filter(f => {
+        const n = parseParkingData(f.properties).mainName.toLowerCase();
+        // Match if full name starts with query OR any significant word (4+ chars) starts with query
+        return n.startsWith(qLow) ||
+          n.split(/[\s.,]+/).some(w => w.length >= 4 && w.startsWith(qLow));
+      })
+      .sort((a, b) => {
+        const [aLng, aLat] = a.geometry.coordinates;
+        const [bLng, bLat] = b.geometry.coordinates;
+        return haversineKm(refLat, refLng, aLat, aLng) - haversineKm(refLat, refLng, bLat, bLng);
+      })
+      .forEach(f => {
+        const d = parseParkingData(f.properties);
+        if (seen.has(d.mainName)) return;
+        seen.add(d.mainName);
+        const [lng, lat] = f.geometry.coordinates;
+        matches.push({ name: d.mainName, lat, lng });
+      });
+    _renderSuggestions(matches.slice(0, 15));
+    return;
+  }
+
+  // Fallback: Overpass local street index
   if (_lvivStreets && _lvivStreets.length > 0) {
-    const qLow = q.toLowerCase();
-    const refLat = _lastKnownPos ? _lastKnownPos[1] : 49.8375;
-    const refLng = _lastKnownPos ? _lastKnownPos[0] : 24.0272;
     const matches = _lvivStreets
       .filter(s => s.name.toLowerCase().startsWith(qLow))
       .sort((a, b) => haversineKm(refLat, refLng, a.lat, a.lng) - haversineKm(refLat, refLng, b.lat, b.lng));
@@ -1557,7 +1759,7 @@ searchPanelInput && searchPanelInput.addEventListener('input', () => {
     return;
   }
 
-  // Fallback: Mapbox geocoding while local index is still loading
+  // Last resort: Mapbox geocoding
   _geoDebounce = setTimeout(() => {
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json`
       + `?proximity=24.0272,49.8375&types=address&language=uk&country=UA`
@@ -1565,7 +1767,6 @@ searchPanelInput && searchPanelInput.addEventListener('input', () => {
     fetch(url)
       .then(r => r.json())
       .then(data => {
-        const qLow = q.toLowerCase();
         const items = (data.features || [])
           .filter(f => f.text && f.text.toLowerCase().startsWith(qLow))
           .map(f => ({ name: f.text, lat: f.center[1], lng: f.center[0] }));
@@ -1573,6 +1774,15 @@ searchPanelInput && searchPanelInput.addEventListener('input', () => {
       })
       .catch(() => _hideSuggestions());
   }, 300);
+});
+
+// Clear button: wipe input, hide suggestions, re-focus
+searchClearBtn && searchClearBtn.addEventListener('click', () => {
+  if (!searchPanelInput) return;
+  searchPanelInput.value = '';
+  searchClearBtn.classList.add('hidden');
+  _hideSuggestions();
+  searchPanelInput.focus();
 });
 
 // ── Calculate price drum picker ───────────────────────────────────────
@@ -1634,12 +1844,14 @@ function resetDrumPicker() {
     let startY = 0, prevSteps = 0;
     colEl.style.cursor = 'ns-resize';
     colEl.style.userSelect = 'none';
+    colEl.style.touchAction = 'none';
 
     colEl.addEventListener('pointerdown', e => {
       startY = e.clientY;
       prevSteps = 0;
       colEl.setPointerCapture(e.pointerId);
       e.preventDefault();
+      e.stopPropagation();
     });
 
     colEl.addEventListener('pointermove', e => {
@@ -1652,6 +1864,7 @@ function resetDrumPicker() {
 
     colEl.addEventListener('wheel', e => {
       e.preventDefault();
+      e.stopPropagation();
       onChange(e.deltaY > 0 ? 1 : -1, true);
     }, { passive: false });
   }
@@ -1791,9 +2004,29 @@ on($('btn-nav-history'), 'click', e => {
 });
 
 on($('btn-cars-back'),      'click', () => closeAccountPanel(carsPanel));
+
+// Car selection — tap item to select, ignore taps on the delete button
+document.querySelectorAll('.car-item').forEach(item => {
+  item.addEventListener('click', e => {
+    if (e.target.closest('.car-item__delete')) return;
+    document.querySelectorAll('.car-item').forEach(c => {
+      c.classList.remove('car-item--active');
+      c.setAttribute('aria-checked', 'false');
+    });
+    item.classList.add('car-item--active');
+    item.setAttribute('aria-checked', 'true');
+
+    const plate = item.querySelector('.car-item__number').textContent.trim();
+    document.querySelectorAll('.plate-widget__number').forEach(el => el.textContent = plate);
+    document.querySelectorAll('.plate-widget').forEach(btn => {
+      btn.setAttribute('aria-label', `Автомобіль: ${plate}`);
+    });
+  });
+});
 on($('btn-plate'),          'click', () => openAccountPanel(carsPanel));
 on($('btn-plate-parked'),   'click', () => openAccountPanel(carsPanel));
 on($('btn-plate-payment'),  'click', () => openAccountPanel(carsPanel));
+on($('btn-plate-drawer'),   'click', () => { closeDrawer(); openAccountPanel(carsPanel); });
 
 on($('btn-add-car-back'),   'click', () => closeAccountPanel(addCarPanel));
 on($('btn-confirm-car'),    'click', () => {

@@ -2,8 +2,19 @@
 <html lang="uk" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Nyro — Паркування у Львові</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- iOS standalone -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nyro">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet">
@@ -11,14 +22,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Wix+Madefor+Text:wght@400;500&family=Noto+Sans:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => {
-        regs.forEach(r => r.unregister());
-      });
-      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-    }
-  </script>
 </head>
 <body>
 
@@ -98,6 +101,9 @@
           <!-- State: Discovery — initial view, no lot selected -->
           <div class="bottom-sheet__collapsed" id="sheet-discovery">
             <p class="sheet-section-title">Парковки поруч</p>
+            <div class="sheet-scrollable-content">
+              <div id="discovery-cards-scroll"></div>
+            </div>
           </div>
 
           <!-- State: Neutral — lot selected (hidden until pin tap) -->
@@ -216,9 +222,9 @@
                     <span class="amenity-label">Місця для людей з інвалідністю</span>
                   </div>
                   <div class="amenity-row">
-                    <svg class="amenity-icon" width="20" height="20" viewBox="4 1 17 23"
+                    <svg class="amenity-icon" width="20" height="20" viewBox="0 0 17 23"
                          fill="none" aria-hidden="true">
-                      <path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <span class="amenity-label">Зарядні станції для EV</span>
                   </div>
@@ -310,8 +316,8 @@
                       <span class="amenity-label">Місця для людей з інвалідністю</span>
                     </div>
                     <div class="amenity-row">
-                      <svg class="amenity-icon" width="20" height="20" viewBox="4 1 17 23" fill="none" aria-hidden="true">
-                        <path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                      <svg class="amenity-icon" width="20" height="20" viewBox="0 0 17 23" fill="none" aria-hidden="true">
+                        <path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                       <span class="amenity-label">Зарядні станції для EV</span>
                     </div>
@@ -402,8 +408,8 @@
                       <span class="amenity-label">Місця для людей з інвалідністю</span>
                     </div>
                     <div class="amenity-row">
-                      <svg class="amenity-icon" width="20" height="20" viewBox="4 1 17 23" fill="none" aria-hidden="true">
-                        <path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                      <svg class="amenity-icon" width="20" height="20" viewBox="0 0 17 23" fill="none" aria-hidden="true">
+                        <path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                       <span class="amenity-label">Зарядні станції для EV</span>
                     </div>
@@ -461,7 +467,12 @@
               <input class="search-input" type="search" id="search-panel-input"
                      aria-label="Пошук парковки"
                      autocomplete="off" spellcheck="false">
-              <button class="search-mic-btn" aria-label="Голосовий пошук">
+              <button class="search-clear-btn hidden" id="btn-search-clear" aria-label="Очистити пошук">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0.999547 1.00045L5.24219 5.24309M5.24219 5.24309L9.48483 9.48573M5.24219 5.24309L9.48483 1.00045M5.24219 5.24309L0.999547 9.48573" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="search-mic-btn" id="search-panel-mic" aria-label="Голосовий пошук">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <path d="M12 18C8.13401 18 5 14.866 5 11M12 18C15.866 18 19 14.866 19 11M12 18V22M12 22H16M12 22H8M12 14C10.3431 14 9 12.6569 9 11V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V11C15 12.6569 13.6569 14 12 14Z"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -477,12 +488,12 @@
           <div class="search-panel__filters">
             <p class="search-panel__filters-title">Фільтри</p>
             <div class="filter-row">
-              <button class="filter-chip" aria-pressed="false">Зарядні станції для EV</button>
-              <button class="filter-chip" aria-pressed="false">Відеоспостереження</button>
+              <button class="filter-chip" aria-pressed="false" data-filter="ev">Зарядні станції для EV</button>
+              <button class="filter-chip" aria-pressed="false" data-filter="cctv">Відеоспостереження</button>
             </div>
             <div class="filter-row">
-              <button class="filter-chip filter-chip--short" aria-pressed="false">Охорона</button>
-              <button class="filter-chip" aria-pressed="false">Місця для людей з інвалідністю</button>
+              <button class="filter-chip filter-chip--short" aria-pressed="false" data-filter="security">Охорона</button>
+              <button class="filter-chip" aria-pressed="false" data-filter="disabled">Місця для людей з інвалідністю</button>
             </div>
             <button class="btn btn--full" id="btn-save-filters">Зберегти фільтри</button>
           </div>
@@ -617,15 +628,15 @@
           <div class="account-panel__body">
             <div class="account-field">
               <label class="account-field__label" for="field-name">Повне ім'я</label>
-              <input class="account-field__value" id="field-name" type="text" value="Дарія Миледелліс" autocomplete="name">
+              <input class="account-field__value" id="field-name" type="text" value="Марія Коваленко" autocomplete="name">
             </div>
             <div class="account-field">
               <label class="account-field__label" for="field-email">Email</label>
-              <input class="account-field__value" id="field-email" type="email" value="darianmildellis@gmail.com" autocomplete="email">
+              <input class="account-field__value" id="field-email" type="email" value="maria.kovalenko@gmail.com" autocomplete="email">
             </div>
             <div class="account-field">
               <label class="account-field__label" for="field-phone">Номер телефону</label>
-              <input class="account-field__value" id="field-phone" type="tel" value="+38 (099) 123 45 67" autocomplete="tel">
+              <input class="account-field__value" id="field-phone" type="tel" value="+38 (097) 456 78 90" autocomplete="tel">
             </div>
             <button class="btn btn--secondary btn--full" id="btn-change-password">Змінити пароль</button>
           </div>
@@ -906,14 +917,14 @@
               <div class="fav-card__actions">
                 <div class="fav-card__amenities">
                   <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="4 1 17 23" fill="none" aria-hidden="true"><path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="#515357" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="fav-card__btns">
                   <button class="fav-btn fav-btn--gray" aria-label="Видалити з обраного">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                   </button>
                   <button class="fav-btn fav-btn--accent" aria-label="Маршрут">
-                    <svg width="20" height="20" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>
+                    <svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>
                   </button>
                 </div>
               </div>
@@ -935,14 +946,14 @@
               <div class="fav-card__actions">
                 <div class="fav-card__amenities">
                   <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="4 1 17 23" fill="none" aria-hidden="true"><path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="#515357" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="fav-card__btns">
                   <button class="fav-btn fav-btn--gray" aria-label="Видалити з обраного">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                   </button>
                   <button class="fav-btn fav-btn--accent" aria-label="Маршрут">
-                    <svg width="20" height="20" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>
+                    <svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>
                   </button>
                 </div>
               </div>
@@ -960,14 +971,14 @@
               <div class="fav-card__actions">
                 <div class="fav-card__amenities">
                   <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="4 1 17 23" fill="none" aria-hidden="true"><path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="#515357" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="fav-card__btns">
                   <button class="fav-btn fav-btn--gray" aria-label="Видалити з обраного">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                   </button>
                   <button class="fav-btn fav-btn--accent" aria-label="Маршрут">
-                    <svg width="20" height="20" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>
+                    <svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>
                   </button>
                 </div>
               </div>
@@ -1003,11 +1014,11 @@
               <div class="fav-card__actions">
                 <div class="fav-card__amenities">
                   <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="4 1 17 23" fill="none" aria-hidden="true"><path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="#515357" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="fav-card__btns">
                   <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
+                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
                 </div>
               </div>
             </div>
@@ -1027,11 +1038,11 @@
               <div class="fav-card__actions">
                 <div class="fav-card__amenities">
                   <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="4 1 17 23" fill="none" aria-hidden="true"><path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="#515357" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="fav-card__btns">
                   <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
+                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
                 </div>
               </div>
             </div>
@@ -1051,11 +1062,11 @@
               <div class="fav-card__actions">
                 <div class="fav-card__amenities">
                   <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="4 1 17 23" fill="none" aria-hidden="true"><path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="#515357" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="fav-card__btns">
                   <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
+                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
                 </div>
               </div>
             </div>
@@ -1075,11 +1086,11 @@
               <div class="fav-card__actions">
                 <div class="fav-card__amenities">
                   <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="4 1 17 23" fill="none" aria-hidden="true"><path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="#515357" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="fav-card__btns">
                   <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
+                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
                 </div>
               </div>
             </div>
@@ -1099,11 +1110,11 @@
               <div class="fav-card__actions">
                 <div class="fav-card__amenities">
                   <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="4 1 17 23" fill="none" aria-hidden="true"><path d="M6 14L13 2L13.5 9.50004H18.5L11 22.5V14H6Z" stroke="#515357" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="fav-card__btns">
                   <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
+                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
                 </div>
               </div>
             </div>
@@ -1222,8 +1233,9 @@
 
             </div>
 
+          </div>
+          <div class="support-footer">
             <button class="btn btn--dark btn--full support-send-btn">Надіслати</button>
-
           </div>
         </div>
 
@@ -1239,7 +1251,7 @@
           </div>
           <div class="cars-body">
 
-            <div class="car-item car-item--active">
+            <div class="car-item car-item--active" role="radio" aria-checked="true" tabindex="0">
               <div class="car-item__plate">
                 <div class="car-item__flag" aria-hidden="true">
                   <div class="car-item__flag-blue"></div>
@@ -1253,12 +1265,12 @@
               </button>
             </div>
 
-            <div class="car-item">
+            <div class="car-item" role="radio" aria-checked="false" tabindex="0">
               <div class="car-item__plate">
                 <div class="car-item__flag" aria-hidden="true">
                   <div class="car-item__flag-blue"></div>
                 </div>
-                <span class="car-item__number">BC 1234 AA</span>
+                <span class="car-item__number">КА 5678 ОР</span>
               </div>
               <button class="car-item__delete" aria-label="Видалити автомобіль">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1311,9 +1323,17 @@
         <!-- Pay-in-app popup -->
 <div class="pay-prompt-backdrop" id="pay-prompt-backdrop" aria-hidden="true"></div>
 <div class="pay-prompt" id="pay-prompt" role="dialog" aria-modal="true" aria-hidden="true">
-  <p class="pay-prompt__title">Ви хочете сплатити у застосунку?</p>
-  <button class="btn btn--primary btn--full pay-prompt__yes" id="btn-pay-prompt-yes">Так</button>
+  <p class="pay-prompt__title">Ця парковка зараз платна. Сплатити через застосунок?</p>
+  <button class="btn btn--primary btn--full pay-prompt__yes" id="btn-pay-prompt-yes">Сплатити</button>
   <button class="pay-prompt__no" id="btn-pay-prompt-no">Ні, іншим способом</button>
+</div>
+
+        <!-- End session confirmation popup -->
+<div class="pay-prompt-backdrop" id="end-session-backdrop" aria-hidden="true"></div>
+<div class="pay-prompt" id="end-session-prompt" role="dialog" aria-modal="true" aria-hidden="true">
+  <p class="pay-prompt__title">Ви впевнені що хочете завершити сесію паркування?</p>
+  <button class="btn btn--primary btn--full pay-prompt__yes" id="btn-end-session-yes">Так</button>
+  <button class="pay-prompt__no" id="btn-end-session-no">Ні</button>
 </div>
 
         <!-- Payment success popup -->
@@ -1335,12 +1355,19 @@
           <div class="nav-picker__options">
 
             <button class="nav-picker__btn" id="nav-google">
-              <span class="nav-picker__icon">
-                <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11C34.6 31 33 33 30.7 34.4v5h5.8C39.8 36.2 43.6 30.9 43.6 24.5z" fill="#4285F4"/>
-                  <path d="M24 44c5.8 0 10.6-1.9 14.2-5.1l-5.8-5c-1.9 1.3-4.3 2-8.4 2-6.5 0-12-4.4-14-10.3H4v5.2C7.6 39.7 15.3 44 24 44z" fill="#34A853"/>
-                  <path d="M10 25.6A14.2 14.2 0 0 1 10 22.4v-5.2H4a20 20 0 0 0 0 17.6l6-5.2z" fill="#FBBC04"/>
-                  <path d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.6 2.5 30.3 0 24 0 15.3 0 7.6 4.3 4 11.6l6 5.2C12 10.9 17.5 9.5 24 9.5z" fill="#EA4335"/>
+              <span class="nav-picker__icon nav-picker__icon--google">
+                <svg width="38" height="46" viewBox="0 0 38 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="gm-pin" x1="38" y1="0" x2="0" y2="46" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#4285F4"/>
+                      <stop offset="22%" stop-color="#C94082"/>
+                      <stop offset="44%" stop-color="#F4801A"/>
+                      <stop offset="66%" stop-color="#F6D400"/>
+                      <stop offset="100%" stop-color="#34A853"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M19 1C8.8 1 0.5 9.3 0.5 19.5C0.5 32.5 19 45 19 45C19 45 37.5 32.5 37.5 19.5C37.5 9.3 29.2 1 19 1Z" fill="url(#gm-pin)"/>
+                  <circle cx="19" cy="19" r="9.5" fill="#080808"/>
                 </svg>
               </span>
               <span class="nav-picker__label">Google Maps</span>
@@ -1348,8 +1375,34 @@
 
             <button class="nav-picker__btn" id="nav-apple">
               <span class="nav-picker__icon nav-picker__icon--apple">
-                <svg width="24" height="29" viewBox="0 0 24 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 0C8.96 0 6.4 2.24 6.4 5v.16A5.76 5.76 0 0 0 0 10.88V23a6 6 0 0 0 6 6h12a6 6 0 0 0 6-6V10.88A5.76 5.76 0 0 0 17.6 5.16V5C17.6 2.24 15.04 0 12 0zm0 2c1.76 0 3.2 1.34 3.2 3v.08A5.76 5.76 0 0 0 12 4.8a5.76 5.76 0 0 0-3.2.28V5C8.8 3.34 10.24 2 12 2zm0 8a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-4 7h8l-2 6H10l-2-6z" fill="white"/>
+                <svg width="60" height="60" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#amc0)">
+                    <rect x="259" y="381" width="253" height="131" fill="#F8C702"/>
+                    <rect width="512" height="381" fill="url(#aml0)"/>
+                    <rect y="188" width="132" height="324" fill="#EC87C9"/>
+                    <g clip-path="url(#amc1)">
+                      <circle cx="526.5" cy="-1.5" r="163.5" stroke="white" stroke-width="86"/>
+                      <path d="M526.5 -193.802C632.706 -193.802 718.802 -107.705 718.802 -1.49951C718.802 104.706 632.706 190.802 526.5 190.802C420.294 190.802 334.197 104.706 334.197 -1.49951C334.197 -107.705 420.294 -193.802 526.5 -193.802ZM526.5 -135.518C452.484 -135.518 392.481 -75.5159 392.481 -1.49951C392.482 72.5168 452.484 132.519 526.5 132.519C600.516 132.519 660.518 72.5167 660.519 -1.49951C660.519 -75.5158 600.516 -135.518 526.5 -135.518Z" fill="#D2D1D6" stroke="#CAC9CE" stroke-width="8"/>
+                    </g>
+                    <path d="M275.801 -2V231.121L278.08 232.6L545.199 405.838L475.377 513.5L-63.084 164.285L6.73926 56.623L95.7275 114.336C104.377 119.945 115.801 113.737 115.801 103.429V-2H275.801Z" fill="#F0EFF5" stroke="white" stroke-width="10"/>
+                    <path d="M252.5 -7.5V248.5H139.5V-7.5H252.5Z" fill="url(#aml1)" stroke="white" stroke-width="15"/>
+                    <path d="M132 256H196H260V512H132V256Z" fill="#EAE9EE"/>
+                    <circle cx="196" cy="317" r="119" fill="url(#aml2)" stroke="white" stroke-width="20"/>
+                    <path d="M208.22 239.518C204.074 228.161 187.927 228.161 183.781 239.518L137.807 370.391C134.709 379.208 145.44 386.32 152.353 380.032L196 340.336L239.647 380.032C246.56 386.32 257.291 379.208 254.194 370.391L208.22 239.518Z" fill="white"/>
+                  </g>
+                  <defs>
+                    <linearGradient id="aml0" x1="256" y1="0" x2="256" y2="381" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#7FED7D"/><stop offset="1" stop-color="#2ED058"/>
+                    </linearGradient>
+                    <linearGradient id="aml1" x1="196" y1="-15" x2="196" y2="256" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#318DF8"/><stop offset="1" stop-color="#4081FA"/>
+                    </linearGradient>
+                    <linearGradient id="aml2" x1="196" y1="188" x2="196" y2="446" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#4C87FB"/><stop offset="1" stop-color="#2D76F6"/>
+                    </linearGradient>
+                    <clipPath id="amc0"><rect width="512" height="512" fill="white"/></clipPath>
+                    <clipPath id="amc1"><rect x="320" width="192" height="205" fill="white"/></clipPath>
+                  </defs>
                 </svg>
               </span>
               <span class="nav-picker__label">Apple Maps</span>
@@ -1357,14 +1410,13 @@
 
             <button class="nav-picker__btn" id="nav-waze">
               <span class="nav-picker__icon nav-picker__icon--waze">
-                <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <ellipse cx="24" cy="22" rx="20" ry="19" fill="#33CCFF"/>
-                  <ellipse cx="16" cy="30" rx="3" ry="3" fill="#1A1A1A"/>
-                  <ellipse cx="32" cy="30" rx="3" ry="3" fill="#1A1A1A"/>
-                  <path d="M17 22c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="#1A1A1A" stroke-width="2.5" stroke-linecap="round"/>
-                  <ellipse cx="16" cy="18" rx="2" ry="2.5" fill="#1A1A1A"/>
-                  <ellipse cx="32" cy="18" rx="2" ry="2.5" fill="#1A1A1A"/>
-                  <path d="M24 41c3 0 5-1 7-3" stroke="#33CCFF" stroke-width="3" stroke-linecap="round"/>
+                <svg width="46" height="46" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M23 3C11.4 3 2 11.8 2 22.8C2 30.5 6.4 37.2 13 40.4L10.5 46C16.5 44 20.5 41 22 40.5H23C34.6 40.5 44 31.7 44 22.8C44 11.8 34.6 3 23 3Z" fill="white" stroke="black" stroke-width="2.5" stroke-linejoin="round"/>
+                  <circle cx="16" cy="21" r="3" fill="black"/>
+                  <circle cx="30" cy="21" r="3" fill="black"/>
+                  <path d="M16 29C17.5 33 28.5 33 30 29" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+                  <circle cx="15.5" cy="41" r="5" fill="black"/>
+                  <circle cx="30.5" cy="41" r="5" fill="black"/>
                 </svg>
               </span>
               <span class="nav-picker__label">Waze</span>
@@ -1376,6 +1428,9 @@
 
         <!-- QR Scanner overlay -->
         <div class="qr-scanner" id="qr-scanner" aria-hidden="true" role="dialog" aria-label="Сканер QR-коду">
+          <!-- Full-screen camera feed — background layer -->
+          <video id="qr-video" autoplay playsinline muted></video>
+
           <div class="qr-scanner__top">
             <button class="qr-scanner__close" id="btn-qr-close" aria-label="Закрити">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1397,7 +1452,6 @@
               <span class="qr-corner qr-corner--tr"></span>
               <span class="qr-corner qr-corner--bl"></span>
               <span class="qr-corner qr-corner--br"></span>
-
             </div>
             <p class="qr-scanner__sub">Код знаходиться на паркомісці або інформаційному стенді</p>
           </div>
@@ -1428,7 +1482,7 @@
 
           <!-- Vehicle plate selector -->
           <div class="drawer__plate-wrap">
-            <button class="plate-widget plate-widget--drawer" aria-label="Обрати автомобіль">
+            <button class="plate-widget plate-widget--drawer" id="btn-plate-drawer" aria-label="Обрати автомобіль">
               <div class="plate-widget__flag" aria-hidden="true">
                 <span class="plate-widget__blue"></span>
                 <span class="plate-widget__yellow"></span>
@@ -1544,34 +1598,37 @@
           </div>
         </div>
 
-        <!-- Session success screen -->
-        <div class="session-success hidden" id="screen-success" role="status" aria-live="polite">
-          <div class="session-success__icon-wrap">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
-                 stroke="#0D0D0D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
+        <!-- Install prompt -->
+        <div class="modal-backdrop hidden" id="install-prompt-backdrop" role="dialog" aria-modal="true">
+          <div class="modal install-prompt">
+            <button class="install-prompt__close" id="btn-install-close" aria-label="Закрити">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <p class="modal__title">Встановити Nyro</p>
+            <p class="install-prompt__subtitle">Щоб відкрити без панелі браузера:</p>
+
+            <div class="install-prompt__section">
+              <p class="install-prompt__section-title">📱 iOS (Safari)</p>
+              <p class="install-prompt__instruction">Safari → кнопка
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin: 0 4px;">
+                  <path d="M19 14c0 1.105-1.343 2-3 2H8c-1.657 0-3-.895-3-2"/>
+                  <path d="M6 6h12"/>
+                  <path d="M8 4l-1 2h10l-1-2"/>
+                  <rect x="6" y="4" width="12" height="6" rx="1"/>
+                </svg>
+                → «На початковий екран»</p>
+            </div>
+
+            <div class="install-prompt__section">
+              <p class="install-prompt__section-title">🤖 Android</p>
+              <p class="install-prompt__instruction">Chrome → меню ⋮ → «Встановити застосунок» або «На початковий екран»</p>
+            </div>
+
+            <button class="btn btn--primary btn--full" id="btn-install-done">Зрозумів</button>
           </div>
-          <p class="text-xl font-bold text-primary">Паркування завершено!</p>
-          <div class="card card--padded receipt-card">
-            <div class="receipt-row">
-              <span class="text-sm text-muted">Тривалість</span>
-              <span class="text-sm font-medium text-primary" id="receipt-duration">1 год 12 хв</span>
-            </div>
-            <div class="receipt-row">
-              <span class="text-sm text-muted">Адреса</span>
-              <span class="text-sm font-medium text-primary" id="receipt-address">вул. Городоцька, 357</span>
-            </div>
-            <div class="receipt-row">
-              <span class="text-sm text-muted">Номер авто</span>
-              <span class="text-sm font-medium text-primary">BC 1234 AA</span>
-            </div>
-            <div class="receipt-row receipt-row--total">
-              <span class="text-base font-semibold text-primary">До сплати</span>
-              <span class="text-base font-bold text-accent" id="receipt-total">16.80 грн</span>
-            </div>
-          </div>
-          <button class="btn btn--primary" id="btn-home">На головну</button>
         </div>
 
         <!-- Action buttons — phone-container overlay, always at bottom of screen -->
@@ -1581,7 +1638,7 @@
             <button class="btn btn--dark" id="btn-park">Запаркуватись</button>
             <button class="btn btn--primary" id="btn-route">
               Маршрут
-              <svg width="18" height="18" viewBox="0 0 17 18" fill="none"
+              <svg width="19" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none"
                    stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/>
@@ -1598,7 +1655,7 @@
             <button class="btn btn--primary hidden" id="btn-pay-now">Сплатити</button>
             <button class="btn btn--primary" id="btn-find-car">
               Де моє авто
-              <svg width="18" height="18" viewBox="0 0 17 18" fill="none"
+              <svg width="19" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none"
                    stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/>
@@ -1613,7 +1670,7 @@
           <div class="btn-row">
             <button class="btn btn--primary" id="btn-pay-session">
               Де моє авто
-              <svg width="18" height="18" viewBox="0 0 17 18" fill="none"
+              <svg width="19" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none"
                    stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/>
@@ -1626,6 +1683,57 @@
     </div><!-- /.phone-wrap -->
   </div><!-- /.desktop-stage -->
 
+  <!-- Install prompt (shown only in browser, hidden in standalone) -->
+  <div id="install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
+    background:#fff;border-top:1px solid #e0e0e0;padding:16px 20px 32px;
+    font-family:'Rubik',sans-serif;box-shadow:0 -4px 20px rgba(0,0,0,0.12);">
+    <button onclick="document.getElementById('install-banner').remove()" style="position:absolute;top:12px;right:16px;
+      border:none;background:none;font-size:20px;cursor:pointer;color:#666;">✕</button>
+    <p style="margin:0 0 4px;font-size:15px;font-weight:700;color:#111;">Встановити Nyro</p>
+    <p style="margin:0 0 12px;font-size:13px;color:#666;line-height:1.4;">
+      Щоб відкрити без панелі браузера:<br>
+      <b>Safari →</b> кнопка <b>⬆</b> → <b>«На екран "Домів"»</b>
+    </p>
+    <div id="install-btn-wrap"></div>
+  </div>
+
   <script src="script.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
+
+    // Show install banner only when NOT already standalone
+    const isStandalone = window.navigator.standalone === true ||
+      window.matchMedia('(display-mode: standalone)').matches;
+
+    if (!isStandalone) {
+      const banner = document.getElementById('install-banner');
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+      // Android: intercept beforeinstallprompt for native install button
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const btn = document.createElement('button');
+        btn.textContent = 'Встановити';
+        btn.style.cssText = 'width:100%;padding:12px;border:none;border-radius:10px;' +
+          'background:#000;color:#fff;font-size:15px;font-weight:600;cursor:pointer;';
+        btn.onclick = async () => {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') banner.remove();
+        };
+        document.getElementById('install-btn-wrap').appendChild(btn);
+        banner.style.display = 'block';
+      });
+
+      // iOS: show instructions banner after 2 s
+      if (isIOS) {
+        setTimeout(() => { banner.style.display = 'block'; }, 2000);
+      }
+    }
+  </script>
 </body>
 </html>

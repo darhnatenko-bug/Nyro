@@ -465,7 +465,12 @@
               <input class="search-input" type="search" id="search-panel-input"
                      aria-label="Пошук парковки"
                      autocomplete="off" spellcheck="false">
-              <button class="search-mic-btn" aria-label="Голосовий пошук">
+              <button class="search-clear-btn hidden" id="btn-search-clear" aria-label="Очистити пошук">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0.999547 1.00045L5.24219 5.24309M5.24219 5.24309L9.48483 9.48573M5.24219 5.24309L9.48483 1.00045M5.24219 5.24309L0.999547 9.48573" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="search-mic-btn" id="search-panel-mic" aria-label="Голосовий пошук">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <path d="M12 18C8.13401 18 5 14.866 5 11M12 18C15.866 18 19 14.866 19 11M12 18V22M12 22H16M12 22H8M12 14C10.3431 14 9 12.6569 9 11V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V11C15 12.6569 13.6569 14 12 14Z"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1226,8 +1231,9 @@
 
             </div>
 
+          </div>
+          <div class="support-footer">
             <button class="btn btn--dark btn--full support-send-btn">Надіслати</button>
-
           </div>
         </div>
 
@@ -1380,6 +1386,9 @@
 
         <!-- QR Scanner overlay -->
         <div class="qr-scanner" id="qr-scanner" aria-hidden="true" role="dialog" aria-label="Сканер QR-коду">
+          <!-- Full-screen camera feed — background layer -->
+          <video id="qr-video" autoplay playsinline muted></video>
+
           <div class="qr-scanner__top">
             <button class="qr-scanner__close" id="btn-qr-close" aria-label="Закрити">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1397,7 +1406,6 @@
           <div class="qr-scanner__body">
             <p class="qr-scanner__hint">Наведіть камеру на QR-код парковки</p>
             <div class="qr-scanner__frame">
-              <video id="qr-video" autoplay playsinline muted></video>
               <span class="qr-corner qr-corner--tl"></span>
               <span class="qr-corner qr-corner--tr"></span>
               <span class="qr-corner qr-corner--bl"></span>

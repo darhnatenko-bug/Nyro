@@ -472,7 +472,7 @@ const _SVG_P = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stro
 const _SVG_WHEELCHAIR = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5105 17.4982C14.2504 18.6305 13.6993 19.6754 12.9117 20.5295C12.1241 21.3836 11.1273 22.0174 10.0197 22.3684C8.9122 22.7193 7.73225 22.7752 6.59649 22.5305C5.46074 22.2859 4.40848 21.7491 3.54368 20.9732C2.67889 20.1974 2.0315 19.2093 1.66548 18.1066C1.29946 17.004 1.22747 15.8249 1.45663 14.6859C1.6858 13.5469 2.20818 12.4874 2.97216 11.6121C3.73614 10.7368 4.71529 10.076 5.81284 9.69498" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="7.5" cy="3.5" r="3.5" fill="currentColor"/><path d="M7.5 4.5L9 15L18.5 14.5L19.5 20.5H21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 9L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const _SVG_LIGHTNING = `<svg width="15" height="20" viewBox="34 1 17 23" fill="none" aria-hidden="true"><path d="M41.31 8.28538L42.6105 2.99082C42.6934 2.65292 42.7349 2.48396 42.6934 2.35098C42.657 2.23441 42.5792 2.1352 42.4747 2.07205C42.3555 2 42.1815 2 41.8335 2H37.9609C37.7434 2 37.6346 2 37.5434 2.03745C37.4629 2.0705 37.3924 2.124 37.3389 2.19265C37.2782 2.27044 37.249 2.37519 37.1904 2.58468L35.1353 9.93873C34.7497 11.3184 34.5569 12.0083 34.714 12.5536C34.8516 13.0314 35.1623 13.4408 35.5854 13.7019C36.0683 14 36.7846 14 38.2172 14H41.332C41.6429 14 41.7983 14 41.9114 14.0627C42.0107 14.1177 42.0883 14.2049 42.1315 14.3099C42.1807 14.4295 42.1627 14.5839 42.1267 14.8926L41.4987 20.2792C41.374 21.3487 41.3117 21.8834 41.4508 22.0487C41.5705 22.1909 41.7592 22.255 41.9407 22.2151C42.1518 22.1686 42.4279 21.7065 42.9801 20.7821L49.1308 10.4865C49.3675 10.0902 49.4859 9.8921 49.4705 9.72913C49.457 9.58702 49.3835 9.45743 49.2684 9.37301C49.1364 9.2762 48.9056 9.2762 48.444 9.2762H42.0869C41.739 9.2762 41.565 9.2762 41.4458 9.20415C41.3413 9.14101 41.2635 9.04179 41.2271 8.92522C41.1855 8.79224 41.227 8.62328 41.31 8.28538Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const _SVG_BOOKMARK = `<svg width="14" height="19" viewBox="0 0 14 19" fill="none" aria-hidden="true"><path d="M1 5.53333C1 3.94652 1 3.15311 1.28027 2.54703C1.5268 2.0139 1.92018 1.58046 2.40402 1.30881C2.95408 1 3.67415 1 5.11429 1H8.88571C10.3258 1 11.0459 1 11.596 1.30881C12.0798 1.58046 12.4732 2.0139 12.7197 2.54703C13 3.15311 13 3.94652 13 5.53333V18L7 14.2222L1 18V5.53333Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const _SVG_ROUTE = `<svg width="17" height="17" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>`;
+const _SVG_ROUTE = `<svg width="17" height="18" viewBox="0 0 17 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>`;
 
 function _makeSearchCard(feature) {
   const [lng, lat] = feature.geometry.coordinates;
@@ -529,6 +529,7 @@ function _makeSearchCard(feature) {
 
   card.addEventListener('click', e => {
     if (e.target.closest('.search-result-card__btn--bookmark')) return;
+    if (e.target.closest('.search-result-card__btn--route')) return;
     openParking();
   });
   card.addEventListener('keydown', e => {
@@ -540,6 +541,13 @@ function _makeSearchCard(feature) {
     e.stopPropagation();
     const active = bmBtn.classList.toggle('bookmarked');
     bmBtn.setAttribute('aria-label', active ? 'Видалити з обраних' : 'Зберегти в обране');
+  });
+
+  const routeBtn = card.querySelector('.search-result-card__btn--route');
+  routeBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    _selectedPinLngLat = [lng, lat];
+    openNavPicker();
   });
 
   return card;
@@ -1232,15 +1240,20 @@ function setExpanded(expand) {
     phone.insertBefore(gps, sheet);
     gps.classList.add('gps--fixed');
   } else {
-    // Hide GPS immediately so it doesn't float over card content during collapse animation
+    // Keep sheet above FABs (z=20) during the entire collapse animation,
+    // then drop z-index after the transition completes.
+    sheet.style.zIndex = '25';
     gps.style.opacity = '0';
     setTimeout(() => {
-      if (!sheet.classList.contains('is-expanded') && gps.parentElement === phone) {
-        sheet.insertBefore(gps, sheet.firstChild);
-        gps.classList.remove('gps--fixed');
+      if (!sheet.classList.contains('is-expanded')) {
+        sheet.style.zIndex = '';
+        if (gps.parentElement === phone) {
+          sheet.insertBefore(gps, sheet.firstChild);
+          gps.classList.remove('gps--fixed');
+        }
         gps.style.opacity = '';
       }
-    }, 400); // matches transition duration
+    }, 430); // slightly after --duration-slow (420ms) so animation is fully done
   }
 }
 
@@ -1293,14 +1306,16 @@ on($('sheet-handle'), 'keydown', e => {
         // Collapse parked card back to strip
         const sheet = $('bottom-sheet');
         $('btn-gps').style.opacity = '0';
+        sheet.style.zIndex = '25'; // keep above FABs during collapse animation
         sheet.classList.remove('is-expanded');
         setTimeout(() => {
           if (!sheet.classList.contains('is-expanded')) {
+            sheet.style.zIndex = '';
             sheet.insertBefore($('btn-gps'), sheet.firstChild);
             $('btn-gps').classList.remove('gps--fixed');
             $('btn-gps').style.opacity = '';
           }
-        }, 400);
+        }, 430);
       }
       // swipe-down while collapsed: do nothing (can't dismiss parked card)
     } else {
@@ -1418,6 +1433,7 @@ on($('btn-bookmark'), 'click', () => {
 // ── Search panel ──────────────────────────────────────────────────────
 const searchPanel = $('search-panel');
 const searchPanelInput = $('search-panel-input');
+const searchClearBtn = $('btn-search-clear');
 
 function openSearchPanel() {
   $('search-input').blur();
@@ -1435,6 +1451,7 @@ function closeSearchPanel() {
   searchPanel.classList.remove('is-open');
   searchPanel.setAttribute('aria-hidden', 'true');
   if (searchPanelInput) searchPanelInput.value = '';
+  if (searchClearBtn) searchClearBtn.classList.add('hidden');
   _hideSuggestions();
   _revertToRecentlyViewed();
 }
@@ -1574,7 +1591,7 @@ function _selectStreet(name, lat, lng) {
   if (searchPanelInput) searchPanelInput.value = name;
   _isShowingNearby = true;
   const hdr = document.querySelector('.search-panel__section-hdr');
-  if (hdr) hdr.textContent = 'Паркинки поруч';
+  if (hdr) hdr.textContent = '';
   populateSearchCards(_getNearbyParkings(lat, lng));
   map.flyTo({ center: [lng, lat], zoom: 16, duration: 600 });
 }
@@ -1598,6 +1615,7 @@ function _renderSuggestions(items) {
 
 searchPanelInput && searchPanelInput.addEventListener('input', () => {
   const q = (searchPanelInput.value || '').trim();
+  if (searchClearBtn) searchClearBtn.classList.toggle('hidden', !searchPanelInput.value.length);
   clearTimeout(_geoDebounce);
   if (!q) { _hideSuggestions(); if (_isShowingNearby) _revertToRecentlyViewed(); return; }
 
@@ -1629,6 +1647,15 @@ searchPanelInput && searchPanelInput.addEventListener('input', () => {
       })
       .catch(() => _hideSuggestions());
   }, 300);
+});
+
+// Clear button: wipe input, hide suggestions, re-focus
+searchClearBtn && searchClearBtn.addEventListener('click', () => {
+  if (!searchPanelInput) return;
+  searchPanelInput.value = '';
+  searchClearBtn.classList.add('hidden');
+  _hideSuggestions();
+  searchPanelInput.focus();
 });
 
 // ── Calculate price drum picker ───────────────────────────────────────

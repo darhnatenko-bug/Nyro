@@ -1598,39 +1598,6 @@
           </div>
         </div>
 
-        <!-- Install prompt -->
-        <div class="modal-backdrop hidden" id="install-prompt-backdrop" role="dialog" aria-modal="true">
-          <div class="modal install-prompt">
-            <button class="install-prompt__close" id="btn-install-close" aria-label="Закрити">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-            <p class="modal__title">Встановити Nyro</p>
-            <p class="install-prompt__subtitle">Щоб відкрити без панелі браузера:</p>
-
-            <div class="install-prompt__section">
-              <p class="install-prompt__section-title">📱 iOS (Safari)</p>
-              <p class="install-prompt__instruction">Safari → кнопка
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin: 0 4px;">
-                  <path d="M19 14c0 1.105-1.343 2-3 2H8c-1.657 0-3-.895-3-2"/>
-                  <path d="M6 6h12"/>
-                  <path d="M8 4l-1 2h10l-1-2"/>
-                  <rect x="6" y="4" width="12" height="6" rx="1"/>
-                </svg>
-                → «На початковий екран»</p>
-            </div>
-
-            <div class="install-prompt__section">
-              <p class="install-prompt__section-title">🤖 Android</p>
-              <p class="install-prompt__instruction">Chrome → меню ⋮ → «Встановити застосунок» або «На початковий екран»</p>
-            </div>
-
-            <button class="btn btn--primary btn--full" id="btn-install-done">Зрозумів</button>
-          </div>
-        </div>
-
         <!-- Action buttons — phone-container overlay, always at bottom of screen -->
         <div class="sheet-actions hidden" id="sheet-actions">
           <div class="sheet-divider"></div>
@@ -1683,56 +1650,11 @@
     </div><!-- /.phone-wrap -->
   </div><!-- /.desktop-stage -->
 
-  <!-- Install prompt (shown only in browser, hidden in standalone) -->
-  <div id="install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
-    background:#fff;border-top:1px solid #e0e0e0;padding:16px 20px 32px;
-    font-family:'Rubik',sans-serif;box-shadow:0 -4px 20px rgba(0,0,0,0.12);">
-    <button onclick="document.getElementById('install-banner').remove()" style="position:absolute;top:12px;right:16px;
-      border:none;background:none;font-size:20px;cursor:pointer;color:#666;">✕</button>
-    <p style="margin:0 0 4px;font-size:15px;font-weight:700;color:#111;">Встановити Nyro</p>
-    <p style="margin:0 0 12px;font-size:13px;color:#666;line-height:1.4;">
-      Щоб відкрити без панелі браузера:<br>
-      <b>Safari →</b> кнопка <b>⬆</b> → <b>«На екран "Домів"»</b>
-    </p>
-    <div id="install-btn-wrap"></div>
-  </div>
-
   <script src="script.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js');
-    }
-
-    // Show install banner only when NOT already standalone
-    const isStandalone = window.navigator.standalone === true ||
-      window.matchMedia('(display-mode: standalone)').matches;
-
-    if (!isStandalone) {
-      const banner = document.getElementById('install-banner');
-      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-
-      // Android: intercept beforeinstallprompt for native install button
-      let deferredPrompt;
-      window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault();
-        deferredPrompt = e;
-        const btn = document.createElement('button');
-        btn.textContent = 'Встановити';
-        btn.style.cssText = 'width:100%;padding:12px;border:none;border-radius:10px;' +
-          'background:#000;color:#fff;font-size:15px;font-weight:600;cursor:pointer;';
-        btn.onclick = async () => {
-          deferredPrompt.prompt();
-          const { outcome } = await deferredPrompt.userChoice;
-          if (outcome === 'accepted') banner.remove();
-        };
-        document.getElementById('install-btn-wrap').appendChild(btn);
-        banner.style.display = 'block';
-      });
-
-      // iOS: show instructions banner after 2 s
-      if (isIOS) {
-        setTimeout(() => { banner.style.display = 'block'; }, 2000);
-      }
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
     }
   </script>
 </body>

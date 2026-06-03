@@ -610,9 +610,11 @@ map.on('load', () => {
   loadParkingMarkers();
   _loadLvivStreets(); // start street index early so search is ready faster
   map.once('idle', syncMarkers);
-  // Show install prompt after a delay
-  setTimeout(showInstallPrompt, 2000);
 });
+
+// ── Helpers ───────────────────────────────────────────────────────────
+const $  = id => document.getElementById(id);
+const on = (el, ev, fn) => el && el.addEventListener(ev, fn);
 
 // ── Marker sync event strategy ────────────────────────────────────────
 // querySourceFeatures only returns correct cluster/point data after Mapbox has
@@ -639,31 +641,6 @@ function queueSyncOnIdle() {
 map.on('zoomend',  queueSyncOnIdle);
 map.on('moveend',  queueSyncOnIdle);
 map.on('pitchend', queueSyncOnIdle);
-
-// ── Install prompt ─────────────────────────────────────────────────────
-function showInstallPrompt() {
-  const backdrop = $('install-prompt-backdrop');
-  if (backdrop) {
-    backdrop.classList.remove('hidden');
-  }
-}
-
-function closeInstallPrompt() {
-  const backdrop = $('install-prompt-backdrop');
-  if (backdrop) {
-    backdrop.classList.add('hidden');
-  }
-}
-
-on($('btn-install-close'), 'click', closeInstallPrompt);
-on($('btn-install-done'), 'click', closeInstallPrompt);
-on($('install-prompt-backdrop'), 'click', (e) => {
-  if (e.target.id === 'install-prompt-backdrop') closeInstallPrompt();
-});
-
-// ── Helpers ───────────────────────────────────────────────────────────
-const $  = id => document.getElementById(id);
-const on = (el, ev, fn) => el && el.addEventListener(ev, fn);
 
 function openModal(el) {
   el.classList.remove('hidden');

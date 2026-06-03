@@ -360,7 +360,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding-bottom: 135px;
+  padding-bottom: 85px;
 }
 .bottom-sheet.is-expanded #sheet-neutral::-webkit-scrollbar { display: none; }
 
@@ -404,7 +404,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding-bottom: 135px;
+  padding-bottom: 85px;
 }
 #sheet-active-paid:not(.hidden) .sheet-scrollable-content::-webkit-scrollbar {
   display: none;
@@ -418,7 +418,7 @@ body {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   /* leave room for the .sheet-actions overlay (divider 1px + btn-row ~80px) */
-  padding-bottom: 135px;
+  padding-bottom: 85px;
 }
 
 .bottom-sheet.is-expanded .sheet-scrollable-content::-webkit-scrollbar {
@@ -1388,7 +1388,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: var(--space-4);
-  padding-bottom: calc(var(--space-4) + 50px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -1613,7 +1613,7 @@ body {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 18px var(--space-4) calc(66px + env(safe-area-inset-bottom, 0px));
+  padding: 18px var(--space-4) calc(16px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -1699,7 +1699,7 @@ body {
   width: 100%;
   /* internal padding (text → button edge) + external gap (button → screen edge) */
   padding: var(--space-3) var(--space-4);
-  margin-bottom: calc(var(--space-5) + 50px + env(safe-area-inset-bottom, 0px));
+  margin-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3006,7 +3006,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   z-index: 49;
   background: var(--bg-primary);
   border-radius: 20px 20px 0 0;
-  padding: 12px 20px 32px;
+  padding: 28px 16px calc(32px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3021,21 +3021,18 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .nav-picker__handle {
-  width: 40px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--divider);
-  margin-bottom: 20px;
+  display: none;
 }
 
 .nav-picker__title {
   font-family: 'Rubik', var(--font-family);
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 500;
   color: var(--text-primary);
   text-align: center;
-  margin: 0 0 24px;
+  margin: 0 0 28px;
   line-height: 1.4;
+  width: 100%;
 }
 
 .nav-picker__options {
@@ -3070,8 +3067,10 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   justify-content: center;
 }
 
-.nav-picker__icon--apple { background: #000; }
-.nav-picker__icon--waze  { background: #fff; }
+.nav-picker__icon { overflow: hidden; }
+.nav-picker__icon--google { background: #000; border: none; }
+.nav-picker__icon--apple  { background: none; border: none; padding: 0; }
+.nav-picker__icon--waze   { background: #33CCFF; border: none; }
 
 .nav-picker__label {
   font-family: 'Wix Madefor Text', var(--font-family);
@@ -3421,7 +3420,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .sheet-actions .btn-row {
-  padding: var(--space-3) var(--space-4) calc(var(--space-5) + 50px + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-3) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
 }
 
 /* Оплатити is alone in the strip but must stay the same half-row width */

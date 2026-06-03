@@ -859,14 +859,15 @@ on($('btn-pay-confirm'), 'click', () => {
     let startY = 0, prevSteps = 0;
     col.style.cursor = 'ns-resize';
     col.style.userSelect = 'none';
-    col.addEventListener('pointerdown', e => { startY = e.clientY; prevSteps = 0; col.setPointerCapture(e.pointerId); e.preventDefault(); });
+    col.style.touchAction = 'none';
+    col.addEventListener('pointerdown', e => { startY = e.clientY; prevSteps = 0; col.setPointerCapture(e.pointerId); e.preventDefault(); e.stopPropagation(); });
     col.addEventListener('pointermove', e => {
       if (!col.hasPointerCapture(e.pointerId)) return;
       const steps = Math.floor(Math.abs(startY - e.clientY) / 24) * Math.sign(startY - e.clientY);
       const delta = steps - prevSteps;
       if (delta) { prevSteps = steps; onChange(delta, false); }
     });
-    col.addEventListener('wheel', e => { e.preventDefault(); onChange(e.deltaY > 0 ? 1 : -1, true); }, { passive: false });
+    col.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); onChange(e.deltaY > 0 ? 1 : -1, true); }, { passive: false });
   }
 
   makeDraggable(colDays,  (d, a) => { days  = wrap(days  + d, MAX_DAYS);  render(a ? Math.sign(d) : 0, 0); });
@@ -1717,12 +1718,14 @@ function resetDrumPicker() {
     let startY = 0, prevSteps = 0;
     colEl.style.cursor = 'ns-resize';
     colEl.style.userSelect = 'none';
+    colEl.style.touchAction = 'none';
 
     colEl.addEventListener('pointerdown', e => {
       startY = e.clientY;
       prevSteps = 0;
       colEl.setPointerCapture(e.pointerId);
       e.preventDefault();
+      e.stopPropagation();
     });
 
     colEl.addEventListener('pointermove', e => {
@@ -1735,6 +1738,7 @@ function resetDrumPicker() {
 
     colEl.addEventListener('wheel', e => {
       e.preventDefault();
+      e.stopPropagation();
       onChange(e.deltaY > 0 ? 1 : -1, true);
     }, { passive: false });
   }
@@ -1874,6 +1878,19 @@ on($('btn-nav-history'), 'click', e => {
 });
 
 on($('btn-cars-back'),      'click', () => closeAccountPanel(carsPanel));
+
+// Car selection — tap item to select, ignore taps on the delete button
+document.querySelectorAll('.car-item').forEach(item => {
+  item.addEventListener('click', e => {
+    if (e.target.closest('.car-item__delete')) return;
+    document.querySelectorAll('.car-item').forEach(c => {
+      c.classList.remove('car-item--active');
+      c.setAttribute('aria-checked', 'false');
+    });
+    item.classList.add('car-item--active');
+    item.setAttribute('aria-checked', 'true');
+  });
+});
 on($('btn-plate'),          'click', () => openAccountPanel(carsPanel));
 on($('btn-plate-parked'),   'click', () => openAccountPanel(carsPanel));
 on($('btn-plate-payment'),  'click', () => openAccountPanel(carsPanel));

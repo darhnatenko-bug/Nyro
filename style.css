@@ -3227,7 +3227,8 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   flex-shrink: 0;
 }
 
-.icon-btn--square.bookmarked { color: var(--accent); }
+.icon-btn--square.bookmarked { color: #0C0C0C; }
+.icon-btn--square.bookmarked svg path:last-child { fill: #141515; }
 
 /* ── Price + time badge row ─────────────────────────────────────────── */
 .sheet-price {
@@ -3829,6 +3830,14 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+/* Discovery expanded cards — same spacing as search panel scroll */
+#discovery-cards-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-6);
 }
 
 /* ── Result card ────────────────────────────────────────────────────── */

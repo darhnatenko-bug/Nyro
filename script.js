@@ -1465,13 +1465,15 @@ $('search-input').addEventListener('focus', e => {
   openSearchPanel();
 });
 
-// Filter chip toggle
-// pointerdown preventDefault keeps input focused on iOS so blur doesn't fire
+// Filter chip toggle — re-applies filters immediately if nearby results are shown
 document.querySelectorAll('.filter-chip').forEach(chip => {
   chip.addEventListener('pointerdown', e => e.preventDefault());
   chip.addEventListener('click', () => {
     const pressed = chip.getAttribute('aria-pressed') === 'true';
     chip.setAttribute('aria-pressed', String(!pressed));
+    if (_isShowingNearby && _lastSearchLat !== null) {
+      populateSearchCards(_getNearbyParkings(_lastSearchLat, _lastSearchLng).filter(_parkingPassesFilters));
+    }
   });
 });
 
@@ -1485,6 +1487,9 @@ on($('btn-save-filters'), 'click', () => {
   } else {
     btn.textContent = 'Скинути фільтри';
     btn.dataset.saved = 'true';
+  }
+  if (_isShowingNearby && _lastSearchLat !== null) {
+    populateSearchCards(_getNearbyParkings(_lastSearchLat, _lastSearchLng).filter(_parkingPassesFilters));
   }
 });
 $('btn-save-filters').addEventListener('pointerdown', e => e.preventDefault());
@@ -1600,13 +1605,33 @@ function _getNearbyParkings(lat, lng) {
     });
 }
 
+let _lastSearchLat = null, _lastSearchLng = null;
+
+function _getActiveFilters() {
+  return [...document.querySelectorAll('.filter-chip[aria-pressed="true"]')]
+    .map(c => c.dataset.filter).filter(Boolean);
+}
+
+function _parkingPassesFilters(feature) {
+  const active = _getActiveFilters();
+  if (!active.length) return true;
+  const props = feature.properties;
+  for (const f of active) {
+    if (f === 'disabled' && !hasDisabledSpots(props)) return false;
+    // ev / cctv / security: no per-lot data yet — all pass
+  }
+  return true;
+}
+
 function _selectStreet(name, lat, lng) {
   _hideSuggestions();
   if (searchPanelInput) searchPanelInput.value = name;
   _isShowingNearby = true;
+  _lastSearchLat = lat;
+  _lastSearchLng = lng;
   const hdr = document.querySelector('.search-panel__section-hdr');
   if (hdr) hdr.textContent = '';
-  populateSearchCards(_getNearbyParkings(lat, lng));
+  populateSearchCards(_getNearbyParkings(lat, lng).filter(_parkingPassesFilters));
   map.flyTo({ center: [lng, lat], zoom: 16, duration: 600 });
 }
 
@@ -1913,6 +1938,7 @@ document.querySelectorAll('.car-item').forEach(item => {
 on($('btn-plate'),          'click', () => openAccountPanel(carsPanel));
 on($('btn-plate-parked'),   'click', () => openAccountPanel(carsPanel));
 on($('btn-plate-payment'),  'click', () => openAccountPanel(carsPanel));
+on($('btn-plate-drawer'),   'click', () => { closeDrawer(); openAccountPanel(carsPanel); });
 
 on($('btn-add-car-back'),   'click', () => closeAccountPanel(addCarPanel));
 on($('btn-confirm-car'),    'click', () => {

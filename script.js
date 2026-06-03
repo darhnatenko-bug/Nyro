@@ -278,7 +278,7 @@ async function drawRoute(origin, dest) {
       id: 'route-line',
       type: 'line', source: 'route',
       layout: { 'line-join': 'round', 'line-cap': 'round' },
-      paint: { 'line-color': '#1A73E8', 'line-width': 6 }
+      paint: { 'line-color': '#AFEE00', 'line-width': 6 }
     }, before);
   } catch (e) {
     console.warn('Route error:', e);
@@ -1232,12 +1232,13 @@ function setExpanded(expand) {
     phone.insertBefore(gps, sheet);
     gps.classList.add('gps--fixed');
   } else {
-    // After the collapse animation finishes, return GPS to the sheet
-    // so it tracks the card edge again
+    // Hide GPS immediately so it doesn't float over card content during collapse animation
+    gps.style.opacity = '0';
     setTimeout(() => {
       if (!sheet.classList.contains('is-expanded') && gps.parentElement === phone) {
         sheet.insertBefore(gps, sheet.firstChild);
         gps.classList.remove('gps--fixed');
+        gps.style.opacity = '';
       }
     }, 400); // matches transition duration
   }
@@ -1291,11 +1292,13 @@ on($('sheet-handle'), 'keydown', e => {
       } else if (deltaY < 0 && isExpanded) {
         // Collapse parked card back to strip
         const sheet = $('bottom-sheet');
+        $('btn-gps').style.opacity = '0';
         sheet.classList.remove('is-expanded');
         setTimeout(() => {
           if (!sheet.classList.contains('is-expanded')) {
             sheet.insertBefore($('btn-gps'), sheet.firstChild);
             $('btn-gps').classList.remove('gps--fixed');
+            $('btn-gps').style.opacity = '';
           }
         }, 400);
       }

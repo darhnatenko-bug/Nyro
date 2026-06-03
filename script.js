@@ -102,13 +102,7 @@ const _MAX_PARK_DIST_M = 5;
 function _updateParkBtnState() {
   const btn = $('btn-park');
   if (!btn) return;
-  let canPark = false;
-  if (_lastKnownPos && _selectedPinLngLat) {
-    const [pLng, pLat] = _selectedPinLngLat;
-    const [uLng, uLat] = _lastKnownPos;
-    const distM = haversineKm(uLat, uLng, pLat, pLng) * 1000;
-    canPark = distM <= _MAX_PARK_DIST_M;
-  }
+  let canPark = !!_selectedPinLngLat;
   btn.disabled = !canPark;
   btn.setAttribute('aria-disabled', String(!canPark));
 }
@@ -616,6 +610,8 @@ map.on('load', () => {
   loadParkingMarkers();
   _loadLvivStreets(); // start street index early so search is ready faster
   map.once('idle', syncMarkers);
+  // Show install prompt after a delay
+  setTimeout(showInstallPrompt, 2000);
 });
 
 // ── Marker sync event strategy ────────────────────────────────────────
@@ -643,6 +639,27 @@ function queueSyncOnIdle() {
 map.on('zoomend',  queueSyncOnIdle);
 map.on('moveend',  queueSyncOnIdle);
 map.on('pitchend', queueSyncOnIdle);
+
+// ── Install prompt ─────────────────────────────────────────────────────
+function showInstallPrompt() {
+  const backdrop = $('install-prompt-backdrop');
+  if (backdrop) {
+    backdrop.classList.remove('hidden');
+  }
+}
+
+function closeInstallPrompt() {
+  const backdrop = $('install-prompt-backdrop');
+  if (backdrop) {
+    backdrop.classList.add('hidden');
+  }
+}
+
+on($('btn-install-close'), 'click', closeInstallPrompt);
+on($('btn-install-done'), 'click', closeInstallPrompt);
+on($('install-prompt-backdrop'), 'click', (e) => {
+  if (e.target.id === 'install-prompt-backdrop') closeInstallPrompt();
+});
 
 // ── Helpers ───────────────────────────────────────────────────────────
 const $  = id => document.getElementById(id);
@@ -714,6 +731,27 @@ on($('btn-pay-prompt-yes'), 'click', () => { closePayPrompt(); openPaymentPanel(
 on($('btn-pay-prompt-no'),  'click', () => { closePayPrompt(); enterFreeSession(); });
 on($('pay-prompt-backdrop'),'click', closePayPrompt);
 
+// ── End session confirmation ────────────────────────────────────────────
+let _pendingEndSessionCallback = null;
+
+function openEndSessionPrompt() {
+  $('end-session-prompt').classList.add('is-open');
+  $('end-session-backdrop').classList.add('is-open');
+}
+
+function closeEndSessionPrompt() {
+  $('end-session-prompt').classList.remove('is-open');
+  $('end-session-backdrop').classList.remove('is-open');
+  _pendingEndSessionCallback = null;
+}
+
+on($('btn-end-session-yes'), 'click', () => {
+  closeEndSessionPrompt();
+  if (_pendingEndSessionCallback) _pendingEndSessionCallback();
+});
+on($('btn-end-session-no'), 'click', closeEndSessionPrompt);
+on($('end-session-backdrop'), 'click', closeEndSessionPrompt);
+
 // ── Park button → branch on zone ─────────────────────────────────────
 on($('btn-park'), 'click', () => {
   if (_isCurrentlyChargeable()) openPayPrompt();
@@ -721,8 +759,12 @@ on($('btn-park'), 'click', () => {
 });
 
 on($('btn-end-parking'), 'click', () => {
-  if ($('bottom-sheet').dataset.state === 'active-paid') exitPaidSession();
-  else exitParkedState();
+  if ($('bottom-sheet').dataset.state === 'active-paid') {
+    _pendingEndSessionCallback = exitPaidSession;
+  } else {
+    _pendingEndSessionCallback = exitParkedState;
+  }
+  openEndSessionPrompt();
 });
 
 on($('btn-pay-session'), 'click', () => {});
@@ -1131,7 +1173,6 @@ function exitPaidSession() {
   if (_carMarker) { _carMarker.remove(); _carMarker = null; }
   $('phone-screen').classList.remove('is-parked');
   showSheet('sheet-discovery');
-  openModal(screenSuccess);
 }
 
 on($('btn-extend'),  'click', () => { _isExtending = true; openPaymentPanel(); });
@@ -1157,19 +1198,12 @@ on($('close-yes'), 'click', () => {
 });
 
 // ── Session success screen ────────────────────────────────────────────
-const screenSuccess = $('screen-success');
-
 function showSessionSuccess() {
-  openModal(screenSuccess);
   // Hide active session sheet, restore neutral state
   $('sheet-active-paid').classList.add('hidden');
   $('sheet-neutral').classList.remove('hidden');
-}
-
-on($('btn-home'), 'click', () => {
-  closeModal(screenSuccess);
   showSheet('sheet-discovery');
-});
+}
 
 // ── Price pin → sheet state transition ───────────────────────────────
 function showSheet(stateId) {
@@ -1465,6 +1499,8 @@ function openSearchPanel() {
   $('search-input').blur();
   searchPanel.classList.add('is-open');
   searchPanel.setAttribute('aria-hidden', 'false');
+  const actions = $('sheet-actions');
+  if (actions) actions.classList.add('hidden');
   _loadLvivStreets();
   if (searchPanelInput) {
     searchPanelInput.placeholder = 'Пошук парковки...';
@@ -1478,6 +1514,8 @@ function closeSearchPanel() {
   searchPanel.setAttribute('aria-hidden', 'true');
   if (searchPanelInput) searchPanelInput.value = '';
   if (searchClearBtn) searchClearBtn.classList.add('hidden');
+  const actions = $('sheet-actions');
+  if (actions) actions.classList.remove('hidden');
   _hideSuggestions();
   _revertToRecentlyViewed();
 }

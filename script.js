@@ -527,7 +527,12 @@ function _makeSearchCard(feature) {
     `</div>`;
 
   function openParking() {
-    closeSearchPanel();
+    // Save search context before closing panel
+    const ctxQuery = searchPanelInput ? searchPanelInput.value.trim() : '';
+    const ctxLat   = _lastSearchLat;
+    const ctxLng   = _lastSearchLng;
+    closeSearchPanel(false); // keep context data alive
+    if (ctxQuery && ctxLat !== null) _setSearchContext(ctxQuery, ctxLat, ctxLng);
     selectPin(null);
     _selectedPinKey       = key;
     _selectedPinLngLat    = [lng, lat];
@@ -612,10 +617,6 @@ map.on('load', () => {
   map.once('idle', syncMarkers);
 });
 
-// ── Helpers ───────────────────────────────────────────────────────────
-const $  = id => document.getElementById(id);
-const on = (el, ev, fn) => el && el.addEventListener(ev, fn);
-
 // ── Marker sync event strategy ────────────────────────────────────────
 // querySourceFeatures only returns correct cluster/point data after Mapbox has
 // finished retiling at the new zoom level. 'zoomend'/'moveend' fire too early —
@@ -641,6 +642,11 @@ function queueSyncOnIdle() {
 map.on('zoomend',  queueSyncOnIdle);
 map.on('moveend',  queueSyncOnIdle);
 map.on('pitchend', queueSyncOnIdle);
+
+
+// ── Helpers ───────────────────────────────────────────────────────────
+const $  = id => document.getElementById(id);
+const on = (el, ev, fn) => el && el.addEventListener(ev, fn);
 
 function openModal(el) {
   el.classList.remove('hidden');
@@ -723,8 +729,9 @@ function closeEndSessionPrompt() {
 }
 
 on($('btn-end-session-yes'), 'click', () => {
+  const cb = _pendingEndSessionCallback;
   closeEndSessionPrompt();
-  if (_pendingEndSessionCallback) _pendingEndSessionCallback();
+  if (cb) cb();
 });
 on($('btn-end-session-no'), 'click', closeEndSessionPrompt);
 on($('end-session-backdrop'), 'click', closeEndSessionPrompt);
@@ -1470,7 +1477,32 @@ on($('btn-bookmark'), 'click', () => {
 // ── Search panel ──────────────────────────────────────────────────────
 const searchPanel = $('search-panel');
 const searchPanelInput = $('search-panel-input');
-const searchClearBtn = $('btn-search-clear');
+const searchClearBtn   = $('btn-search-clear');
+const searchBarWrap    = $('search-bar-wrap');
+const searchBarBack    = $('btn-search-bar-back');
+const searchBarClear   = $('btn-search-bar-clear');
+const mapSearchInput   = $('search-input');
+
+// ── Search context — persists while user explores a searched street ───
+let _searchContext = null; // { query, lat, lng }
+
+function _setSearchContext(query, lat, lng) {
+  _searchContext = { query, lat, lng };
+  mapSearchInput.value = query;
+  mapSearchInput.setAttribute('readonly', '');
+  searchBarWrap.classList.add('has-context');
+  searchBarBack.classList.remove('hidden');
+  searchBarClear.classList.remove('hidden');
+}
+
+function _clearSearchContext() {
+  _searchContext = null;
+  mapSearchInput.value = '';
+  mapSearchInput.setAttribute('readonly', '');
+  searchBarWrap.classList.remove('has-context');
+  searchBarBack.classList.add('hidden');
+  searchBarClear.classList.add('hidden');
+}
 
 function openSearchPanel() {
   $('search-input').blur();
@@ -1485,7 +1517,23 @@ function openSearchPanel() {
   }
 }
 
-function closeSearchPanel() {
+function _openSearchPanelWithContext() {
+  if (!_searchContext) { openSearchPanel(); return; }
+  openSearchPanel();
+  // Restore query and results
+  if (searchPanelInput) {
+    searchPanelInput.value = _searchContext.query;
+    if (searchClearBtn) searchClearBtn.classList.remove('hidden');
+  }
+  _isShowingNearby = true;
+  _lastSearchLat   = _searchContext.lat;
+  _lastSearchLng   = _searchContext.lng;
+  populateSearchCards(_getNearbyParkings(_searchContext.lat, _searchContext.lng).filter(_parkingPassesFilters));
+  const hdr = document.querySelector('.search-panel__section-hdr');
+  if (hdr) hdr.textContent = 'Парковки поруч';
+}
+
+function closeSearchPanel(clearCtx = true) {
   if (searchPanelInput) searchPanelInput.placeholder = '';
   searchPanel.classList.remove('is-open');
   searchPanel.setAttribute('aria-hidden', 'true');
@@ -1494,21 +1542,47 @@ function closeSearchPanel() {
   const actions = $('sheet-actions');
   if (actions) actions.classList.remove('hidden');
   _hideSuggestions();
-  _revertToRecentlyViewed();
+  if (clearCtx) {
+    _clearSearchContext();
+    _revertToRecentlyViewed();
+  }
 }
 
-// Open when the map search bar receives focus
+// Open when the map search bar receives focus / click
 $('search-input').addEventListener('focus', e => {
-  e.target.blur();          // prevent native focus styles on the map input
-  openSearchPanel();
+  e.target.blur();
+  if (_searchContext) _openSearchPanelWithContext();
+  else openSearchPanel();
+});
+$('search-input').addEventListener('click', e => {
+  if (_searchContext) { e.preventDefault(); _openSearchPanelWithContext(); }
+});
+
+// ← back button on map search bar → open search panel with context
+on(searchBarBack, 'click', () => _openSearchPanelWithContext());
+
+// × clear button on map search bar → clear context, reset to home
+on(searchBarClear, 'click', () => {
+  _clearSearchContext();
+  _revertToRecentlyViewed();
 });
 
 // Filter chip toggle — re-applies filters immediately if nearby results are shown
+function _updateSaveFiltersBtn() {
+  const btn = $('btn-save-filters');
+  const anySelected = document.querySelectorAll('.filter-chip[aria-pressed="true"]').length > 0;
+  const isSaved = btn.dataset.saved === 'true';
+  const enabled = anySelected || isSaved;
+  btn.disabled = !enabled;
+  btn.setAttribute('aria-disabled', String(!enabled));
+}
+
 document.querySelectorAll('.filter-chip').forEach(chip => {
   chip.addEventListener('pointerdown', e => e.preventDefault());
   chip.addEventListener('click', () => {
     const pressed = chip.getAttribute('aria-pressed') === 'true';
     chip.setAttribute('aria-pressed', String(!pressed));
+    _updateSaveFiltersBtn();
     if (_isShowingNearby && _lastSearchLat !== null) {
       populateSearchCards(_getNearbyParkings(_lastSearchLat, _lastSearchLng).filter(_parkingPassesFilters));
     }
@@ -1526,6 +1600,7 @@ on($('btn-save-filters'), 'click', () => {
     btn.textContent = 'Скинути фільтри';
     btn.dataset.saved = 'true';
   }
+  _updateSaveFiltersBtn();
   if (_isShowingNearby && _lastSearchLat !== null) {
     populateSearchCards(_getNearbyParkings(_lastSearchLat, _lastSearchLng).filter(_parkingPassesFilters));
   }
@@ -1545,13 +1620,13 @@ searchPanel.addEventListener('pointerup',   () => { setTimeout(() => { _panelPoi
 searchPanelInput && searchPanelInput.addEventListener('blur', () => {
   setTimeout(() => {
     if (!_panelPointerActive && !searchPanel.contains(document.activeElement)) {
-      closeSearchPanel();
+      closeSearchPanel(false); // keep context when closing via blur
     }
   }, 150);
 });
 
-// Close via back arrow
-on($('btn-search-back'), 'click', closeSearchPanel);
+// ← in search panel → always clear context and go home
+on($('btn-search-back'), 'click', () => closeSearchPanel(true));
 
 // Close via Escape key
 document.addEventListener('keydown', e => {
@@ -2211,4 +2286,190 @@ on($('btn-save-password'), 'click', () => {
 
   closeAllAccountPanels();
   showToast('Пароль успішно оновлено!');
+});
+
+// ── Voice Search ──────────────────────────────────────────────────────
+
+const voiceOverlay = $('voice-overlay');
+const voiceStatus  = $('voice-status');
+const voiceTranscript = $('voice-transcript');
+let _recognition = null;
+let _voiceActive = false;
+
+// Strip street-type prefixes before fuzzy matching
+function _extractStreetQuery(raw) {
+  return raw
+    .toLowerCase()
+    .replace(/[.,!?]/g, ' ')
+    .replace(/\b(вулиця|вул|проспект|просп|бульвар|бул|площа|пл|провулок|пров|набережна|узвіз|алея|шосе|тупик)\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function _matchStreet(query) {
+  if (!_lvivStreets || !_lvivStreets.length || !query) return null;
+  const q = query.toLowerCase();
+  // 1. Exact match
+  let found = _lvivStreets.find(s => s.name.toLowerCase() === q);
+  if (found) return found;
+  // 2. Starts-with match (e.g. "стефаника" matches "вулиця Стефаника")
+  found = _lvivStreets.find(s => s.name.toLowerCase().includes(q) || q.includes(s.name.toLowerCase().replace(/^.+\s/, '')));
+  if (found) return found;
+  // 3. Word overlap (last word of street name in query or vice versa)
+  const qWords = q.split(/\s+/).filter(w => w.length > 2);
+  found = _lvivStreets.find(s => {
+    const sWords = s.name.toLowerCase().split(/\s+/);
+    return qWords.some(qw => sWords.some(sw => sw.startsWith(qw) || qw.startsWith(sw)));
+  });
+  return found || null;
+}
+
+function openVoiceOverlay() {
+  voiceOverlay.classList.add('is-open');
+  voiceOverlay.setAttribute('aria-hidden', 'false');
+  voiceStatus.textContent = 'Говоріть';
+  voiceStatus.className = 'voice-overlay__status voice-overlay__status--listening';
+  voiceTranscript.textContent = '';
+  _startRecognition();
+}
+
+function closeVoiceOverlay() {
+  voiceOverlay.classList.remove('is-open', 'is-listening');
+  voiceOverlay.setAttribute('aria-hidden', 'true');
+  _stopRecognition();
+}
+
+function _startRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    voiceStatus.textContent = 'Голосовий пошук не підтримується';
+    voiceStatus.className = 'voice-overlay__status voice-overlay__status--error';
+    return;
+  }
+  _stopRecognition();
+  _recognition = new SR();
+  _recognition.lang = 'uk-UA';
+  _recognition.interimResults = true;
+  _recognition.maxAlternatives = 3;
+  _voiceActive = true;
+  voiceOverlay.classList.add('is-listening');
+
+  _recognition.onresult = e => {
+    const interim = [...e.results].map(r => r[0].transcript).join(' ');
+    voiceTranscript.textContent = interim;
+    if (e.results[e.results.length - 1].isFinal) {
+      _processVoiceResult(e.results);
+    }
+  };
+
+  _recognition.onerror = err => {
+    voiceOverlay.classList.remove('is-listening');
+    if (err.error === 'no-speech') {
+      voiceStatus.textContent = 'Не почули. Спробуйте ще раз';
+    } else if (err.error === 'not-allowed') {
+      voiceStatus.textContent = 'Доступ до мікрофону заблоковано';
+    } else {
+      voiceStatus.textContent = 'Помилка. Спробуйте ще раз';
+    }
+    voiceStatus.className = 'voice-overlay__status voice-overlay__status--error';
+  };
+
+  _recognition.onend = () => {
+    voiceOverlay.classList.remove('is-listening');
+    _voiceActive = false;
+  };
+
+  _recognition.start();
+}
+
+function _stopRecognition() {
+  if (_recognition) {
+    try { _recognition.abort(); } catch(_) {}
+    _recognition = null;
+  }
+  _voiceActive = false;
+  voiceOverlay.classList.remove('is-listening');
+}
+
+async function _processVoiceResult(results) {
+  // Wait for streets to load (max 6s)
+  if (!_lvivStreets || _lvivStreets.length === 0) {
+    voiceStatus.textContent = 'Завантаження...';
+    voiceTranscript.textContent = '';
+    _loadLvivStreets();
+    await new Promise(res => {
+      let attempts = 0;
+      const id = setInterval(() => {
+        if ((_lvivStreets && _lvivStreets.length > 0) || ++attempts > 30) {
+          clearInterval(id); res();
+        }
+      }, 200);
+    });
+  }
+
+  // Collect all alternatives
+  const candidates = [];
+  for (const result of results) {
+    for (let i = 0; i < result.length; i++) {
+      candidates.push(result[i].transcript);
+    }
+  }
+
+  // Try each candidate until a street is found
+  let match = null;
+  for (const text of candidates) {
+    const query = _extractStreetQuery(text);
+    match = _matchStreet(query);
+    if (match) break;
+  }
+
+  if (match) {
+    voiceStatus.textContent = match.name;
+    voiceStatus.className = 'voice-overlay__status voice-overlay__status--success';
+    voiceTranscript.textContent = '';
+    setTimeout(() => {
+      closeVoiceOverlay();
+      closeSearchPanel(false);
+      map.flyTo({ center: [match.lng, match.lat], zoom: 15, duration: 600 });
+      openSearchPanel();
+      if (searchPanelInput) {
+        searchPanelInput.value = match.name;
+        if (searchClearBtn) searchClearBtn.classList.remove('hidden');
+      }
+      _isShowingNearby = true;
+      _lastSearchLat   = match.lat;
+      _lastSearchLng   = match.lng;
+      const nearby = _getNearbyParkings(match.lat, match.lng);
+      populateSearchCards(nearby.length ? nearby : _recentlyViewed);
+      const hdr = document.querySelector('.search-panel__section-hdr');
+      if (hdr && nearby.length) hdr.textContent = 'Парковки поруч';
+      // Set context so map bar shows the address after user selects a parking
+      _setSearchContext(match.name, match.lat, match.lng);
+    }, 900);
+  } else {
+    voiceStatus.textContent = 'Вулицю не розпізнано. Спробувати ще раз?';
+    voiceStatus.className = 'voice-overlay__status voice-overlay__status--error';
+    voiceTranscript.textContent = '';
+    // Offer retry via mic button
+  }
+}
+
+// Bind mic buttons
+on($('search-panel-mic'), 'click', openVoiceOverlay);
+// Also bind the map search bar mic (opens search panel + voice)
+document.querySelector('.search-bar-wrap .search-mic-btn')?.addEventListener('click', () => {
+  openSearchPanel();
+  setTimeout(openVoiceOverlay, 350);
+});
+
+on($('voice-close'),   'click', closeVoiceOverlay);
+on($('voice-mic-btn'), 'click', () => {
+  if (_voiceActive) {
+    _stopRecognition();
+  } else {
+    voiceStatus.textContent = 'Говоріть';
+    voiceStatus.className = 'voice-overlay__status voice-overlay__status--listening';
+    voiceTranscript.textContent = '';
+    _startRecognition();
+  }
 });

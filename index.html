@@ -140,7 +140,7 @@
                   <span class="sheet-price" id="neutral-price">40 грн/год</span>
                   <span class="paid-price-sep hidden" id="neutral-price-sep"> – </span>
                   <span class="sheet-price paid-price-next hidden" id="neutral-price-next"></span>
-                  <span class="paid-price-dot hidden" id="neutral-price-dot">•</span>
+                  <span class="paid-price-dot hidden" id="neutral-price-dot"></span>
                 </div>
                 <span class="time-badge" id="time-badge">
                   <svg class="time-badge__icon" width="22" height="15" viewBox="0.5 7 28 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -386,7 +386,7 @@
                   <span class="sheet-price" id="paid-session-price">—</span>
                   <span class="paid-price-sep hidden" id="paid-session-price-sep"> – </span>
                   <span class="sheet-price paid-price-next hidden" id="paid-session-price-next"></span>
-                  <span class="paid-price-dot hidden" id="paid-session-price-dot">•</span>
+                  <span class="paid-price-dot hidden" id="paid-session-price-dot"></span>
                 </div>
               </div>
             </div>
@@ -595,7 +595,7 @@
             </div>
 
             <p class="payment-section-title">Спосіб оплати</p>
-            <div class="pay-method-card pay-method-card--checked" id="pay-method-1" role="radio" aria-checked="true" tabindex="0">
+            <div class="pay-method-card pay-method-card--checked" id="pay-method-1" data-card-id="visa" role="radio" aria-checked="true" tabindex="0">
               <div class="pay-method-card__left">
                 <div class="pay-method-card__icon pay-method-card__icon--visa">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 12" width="38" height="12" aria-label="VISA">
@@ -606,7 +606,7 @@
               </div>
               <div class="pay-method-radio pay-method-radio--checked"></div>
             </div>
-            <div class="pay-method-card" id="pay-method-2" role="radio" aria-checked="false" tabindex="0">
+            <div class="pay-method-card" id="pay-method-2" data-card-id="mc" role="radio" aria-checked="false" tabindex="0">
               <div class="pay-method-card__left">
                 <div class="pay-method-card__icon pay-method-card__icon--mc">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 16" width="24" height="16" aria-label="Mastercard">
@@ -804,7 +804,7 @@
             <h1 class="account-panel__title account-panel__title--bold">Кредитні картки</h1>
           </div>
           <div class="cards-body">
-            <div class="credit-card credit-card--active">
+            <div class="credit-card credit-card--active" data-card-id="visa" role="radio" aria-checked="true" tabindex="0">
               <div class="credit-card__info">
                 <div class="credit-card__top">
                   <svg width="40" height="28" viewBox="0 0 40 28" fill="none" aria-label="Visa"><rect width="40" height="28" rx="4" fill="white" stroke="#F3F3F3"/><text x="50%" y="55%" text-anchor="middle" fill="#1A1F71" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="11" dominant-baseline="middle">VISA</text></svg>
@@ -816,7 +816,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6H21M9.82324 11.3232L12 13.5M12 13.5L14.1768 15.6768M12 13.5L14.1768 11.3232M12 13.5L9.82324 15.6768M5 6H19V17.2C19 18.8802 19 19.7202 18.673 20.362C18.3854 20.9265 17.9265 21.3854 17.362 21.673C16.7202 22 15.8802 22 14.2 22H9.8C8.11984 22 7.27976 22 6.63803 21.673C6.07354 21.3854 5.6146 20.9265 5.32698 20.362C5 19.7202 5 18.8802 5 17.2V6ZM16 6H8C8 5.07003 8 4.60504 8.10222 4.22354C8.37962 3.18827 9.18827 2.37962 10.2235 2.10222C10.605 2 11.07 2 12 2C12.93 2 13.395 2 13.7765 2.10222C14.8117 2.37962 15.6204 3.18827 15.8978 4.22354C16 4.60504 16 5.07003 16 6Z" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
             </div>
-            <div class="credit-card">
+            <div class="credit-card" data-card-id="mc" role="radio" aria-checked="false" tabindex="0">
               <div class="credit-card__info">
                 <div class="credit-card__top">
                   <svg width="40" height="28" viewBox="0 0 40 28" fill="none" aria-label="Mastercard"><rect width="40" height="28" rx="4" fill="white" stroke="#F3F3F3"/><circle cx="15" cy="14" r="8" fill="#EB001B"/><circle cx="25" cy="14" r="8" fill="#F79E1B"/><path d="M20 7.7a8 8 0 0 1 0 12.6A8 8 0 0 1 20 7.7z" fill="#FF5F00"/></svg>
@@ -1280,9 +1280,7 @@
                 <span class="car-item__number">BC 1234 AA</span>
               </div>
               <button class="car-item__delete" aria-label="Видалити автомобіль">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6H21M9.82324 11.3232L12 13.5M12 13.5L14.1768 15.6768M12 13.5L14.1768 11.3232M12 13.5L9.82324 15.6768M5 6H19V17.2C19 18.8802 19 19.7202 18.673 20.362C18.3854 20.9265 17.9265 21.3854 17.362 21.673C16.7202 22 15.8802 22 14.2 22H9.8C8.11984 22 7.27976 22 6.63803 21.673C6.07354 21.3854 5.6146 20.9265 5.32698 20.362C5 19.7202 5 18.8802 5 17.2V6ZM16 6H8C8 5.07003 8 4.60504 8.10222 4.22354C8.37962 3.18827 9.18827 2.37962 10.2235 2.10222C10.605 2 11.07 2 12 2C12.93 2 13.395 2 13.7765 2.10222C14.8117 2.37962 15.6204 3.18827 15.8978 4.22354C16 4.60504 16 5.07003 16 6Z"/></svg>
               </button>
             </div>
 
@@ -1294,9 +1292,7 @@
                 <span class="car-item__number">КА 5678 ОР</span>
               </div>
               <button class="car-item__delete" aria-label="Видалити автомобіль">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6H21M9.82324 11.3232L12 13.5M12 13.5L14.1768 15.6768M12 13.5L14.1768 11.3232M12 13.5L9.82324 15.6768M5 6H19V17.2C19 18.8802 19 19.7202 18.673 20.362C18.3854 20.9265 17.9265 21.3854 17.362 21.673C16.7202 22 15.8802 22 14.2 22H9.8C8.11984 22 7.27976 22 6.63803 21.673C6.07354 21.3854 5.6146 20.9265 5.32698 20.362C5 19.7202 5 18.8802 5 17.2V6ZM16 6H8C8 5.07003 8 4.60504 8.10222 4.22354C8.37962 3.18827 9.18827 2.37962 10.2235 2.10222C10.605 2 11.07 2 12 2C12.93 2 13.395 2 13.7765 2.10222C14.8117 2.37962 15.6204 3.18827 15.8978 4.22354C16 4.60504 16 5.07003 16 6Z"/></svg>
               </button>
             </div>
 
@@ -1319,12 +1315,12 @@
 
             <div class="add-car-toggle-row">
               <span class="add-car-toggle-label">Стандартний номер</span>
-              <button class="toggle-switch" id="toggle-std-plate" role="switch" aria-checked="false" aria-label="Стандартний номер">
+              <button class="toggle-switch" id="toggle-std-plate" role="switch" aria-checked="true" aria-label="Стандартний номер">
                 <span class="toggle-switch__thumb"></span>
               </button>
             </div>
 
-            <div class="add-car-form" id="add-car-form">
+            <div class="add-car-form std-on" id="add-car-form">
               <div class="card-form__field">
                 <label class="card-form__label" for="car-plate-input">Номер автомобіля</label>
                 <div class="add-car-input-row">
@@ -1332,10 +1328,10 @@
                     <div class="add-car-flag-blue"></div>
                   </div>
                   <input class="card-form__input add-car-input" id="car-plate-input" type="text"
-                         placeholder="Введіть номерний знак" autocomplete="off" autocapitalize="characters">
+                         placeholder="AA 0000 AA" autocomplete="off" autocapitalize="characters" maxlength="10">
                 </div>
               </div>
-              <button class="btn btn--dark btn--full" id="btn-confirm-car">Підтвердити</button>
+              <button class="btn btn--dark btn--full" id="btn-confirm-car" disabled>Підтвердити</button>
             </div>
 
           </div>
@@ -1599,6 +1595,21 @@
           </div>
         </div>
 
+        <!-- Confirmation: delete car -->
+        <div class="modal-backdrop hidden" id="modal-delete-car" role="dialog"
+             aria-modal="true" aria-labelledby="modal-delete-car-title">
+          <div class="modal modal--delete-card">
+            <p class="modal__title modal__title--delete" id="modal-delete-car-title">Ви дійсно бажаєте<br>видалити автомобіль?</p>
+            <div class="car-delete-preview" id="car-delete-preview">
+              <div class="car-item__flag" aria-hidden="true"><div class="car-item__flag-blue"></div></div>
+              <span id="car-delete-plate" style="font-family:'Noto Sans',sans-serif;font-size:22px;font-weight:700;color:#282828;"></span>
+            </div>
+            <p class="card-delete-desc">Автомобіль більше не буде відображатись в переліку.</p>
+            <button class="btn btn--dark btn--full" id="btn-confirm-delete-car">Видалити автомобіль</button>
+            <button class="btn btn--cancel btn--full" id="btn-cancel-delete-car">Скасувати</button>
+          </div>
+        </div>
+
         <!-- Confirmation: close session -->
         <div class="modal-backdrop hidden" id="modal-close" role="dialog"
              aria-modal="true" aria-labelledby="modal-close-title">
@@ -1680,9 +1691,8 @@
               <div class="voice-overlay__ring voice-overlay__ring--2"></div>
               <div class="voice-overlay__ring voice-overlay__ring--1"></div>
               <button class="voice-overlay__mic-btn" id="voice-mic-btn" aria-label="Мікрофон">
-                <svg width="28" height="36" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 20C8.69 20 6 17.31 6 14V6C6 2.69 8.69 0 12 0C15.31 0 18 2.69 18 6V14C18 17.31 15.31 20 12 20Z" fill="white"/>
-                  <path d="M4 14C4 18.42 7.58 22 12 22C16.42 22 20 18.42 20 14M12 22V28M8 28H16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 18C8.13401 18 5 14.866 5 11M12 18C15.866 18 19 14.866 19 11M12 18V22M12 22H16M12 22H8M12 14C10.3431 14 9 12.6569 9 11V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V11C15 12.6569 13.6569 14 12 14Z"/>
                 </svg>
               </button>
             </div>

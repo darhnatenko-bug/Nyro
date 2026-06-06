@@ -636,7 +636,8 @@ body {
   z-index: var(--z-modal);
   background: var(--bg-overlay);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center;
   padding: var(--space-4);
 }
 
@@ -1133,9 +1134,11 @@ body {
 
 /* × clear button inside map search bar */
 .search-bar-clear-btn {
-  flex-shrink: 0;
+  position: absolute;
+  right: 48px; /* sits left of the 48px mic button */
+  top: 0;
+  bottom: 0;
   width: 36px;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1144,10 +1147,13 @@ body {
   color: var(--text-muted);
   cursor: pointer;
 }
+.search-bar-clear-btn.hidden { display: none; }
 
-/* When context is active — input has less left padding (back btn takes the space) */
+/* When context is active — input has less left padding (back btn takes the space)
+   and more right padding to clear both the × and mic buttons */
 .search-bar-wrap.has-context .search-input {
   padding-left: 4px;
+  padding-right: 84px; /* 36px clear + 48px mic */
   cursor: pointer;
 }
 
@@ -2027,7 +2033,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .credit-card--active {
-  outline: 2px solid #141515;
+  outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
 
@@ -2108,6 +2114,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-left: 6px;
   padding-right: 10px;
   border-radius: 4px;
   outline: 1px solid #26282A;
@@ -2141,19 +2148,34 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .car-item__delete {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
+  padding: 4px;
+  border-radius: 10px;
+  border: none;
+  background: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
   cursor: pointer;
   flex-shrink: 0;
-  border-radius: 6px;
+  transition: background var(--duration-fast) var(--ease-out);
 }
 
-.car-item__delete:active { background: rgba(185, 28, 28, 0.1); }
+.car-item__delete:hover  { background: rgba(185, 28, 28, 0.08); }
+.car-item__delete:active { background: rgba(185, 28, 28, 0.14); }
+
+/* Car delete modal preview */
+.car-delete-preview {
+  background: #ffffff;
+  border-radius: 8px;
+  outline: 1px solid #A8A8A8;
+  outline-offset: -1px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
 .cars-add-btn {
   margin-top: 4px;
@@ -2602,6 +2624,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .btn--dark:hover:not(:disabled) { filter: brightness(1.15); }
+.btn--dark:disabled { background: #BEBEBE; color: rgba(255,255,255,0.6); cursor: not-allowed; }
 
 /* ── Add car panel ───────────────────────────────────────────────────── */
 
@@ -3282,7 +3305,15 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 .price-group     { display: flex; align-items: center; gap: 8px; }
 .paid-price-sep  { font-size: 20px; font-weight: 500; color: var(--text-muted); }
 .paid-price-next { color: var(--text-muted) !important; opacity: 1; }
-.paid-price-dot  { font-size: 18px; color: #e65100; margin-left: 4px; line-height: 1; }
+.paid-price-dot  {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e65100;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
 
 .time-badge {
   display: inline-flex;
@@ -3954,9 +3985,13 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .src-price-dot {
-  color: #F57C00;
-  font-size: 14px;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F57C00;
   margin-left: 4px;
+  flex-shrink: 0;
 }
 
 .src-dist {
@@ -4681,31 +4716,26 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   position: relative;
   width: 80px;
   height: 80px;
-  border-radius: 50%;
+  border-radius: var(--radius);
   border: none;
   background: #141515;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 200ms, transform 150ms;
+  transition: background 200ms, transform 150ms, color 200ms;
   flex-shrink: 0;
   z-index: 1;
 }
 
 .voice-overlay.is-listening .voice-overlay__mic-btn {
   background: var(--accent);
+  color: #141515;
 }
 
 .voice-overlay__mic-btn:active {
   transform: scale(0.92);
-}
-
-.voice-overlay.is-listening .voice-overlay__mic-btn svg path,
-.voice-overlay.is-listening .voice-overlay__mic-btn svg path[fill="white"],
-.voice-overlay.is-listening .voice-overlay__mic-btn svg path[stroke="white"] {
-  fill: #141515;
-  stroke: #141515;
 }
 
 /* Close button */

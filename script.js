@@ -474,7 +474,7 @@ function _cardPriceHtml(props) {
   const cur   = isPaid ? d.price : '0 грн/год';
   const other = isPaid ? '0 грн/год' : d.price;
   const dot = _secsUntilTariffChange() <= 3600
-    ? '<span class="src-price-dot">•</span>' : '';
+    ? '<span class="src-price-dot"></span>' : '';
   return `<span class="src-price">${cur}</span>` +
          `<span class="src-price-sep">–</span>` +
          `<span class="src-price-next">${other}</span>${dot}`;
@@ -2080,22 +2080,141 @@ on($('btn-plate-parked'),   'click', () => openAccountPanel(carsPanel));
 on($('btn-plate-payment'),  'click', () => openAccountPanel(carsPanel));
 on($('btn-plate-drawer'),   'click', () => { closeDrawer(); openAccountPanel(carsPanel); });
 
-on($('btn-add-car-back'),   'click', () => closeAccountPanel(addCarPanel));
-on($('btn-confirm-car'),    'click', () => {
+// ── Car management ────────────────────────────────────────────────────
+function _formatUaPlate(raw) {
+  const chars = raw.toUpperCase().replace(/[^A-ZА-ЯІЇЄ0-9]/g, '').slice(0, 8);
+  let out = chars.slice(0, 2);
+  if (chars.length > 2) out += ' ' + chars.slice(2, 6);
+  if (chars.length > 6) out += ' ' + chars.slice(6, 8);
+  return out;
+}
+
+function _updatePlateWidgets(plate) {
+  document.querySelectorAll('.plate-widget__number').forEach(el => { el.textContent = plate; });
+  document.querySelectorAll('.plate-widget').forEach(el => {
+    el.setAttribute('aria-label', 'Автомобіль: ' + plate);
+  });
+}
+
+function _selectCar(item) {
+  document.querySelectorAll('.car-item').forEach(el => {
+    el.classList.remove('car-item--active');
+    el.setAttribute('aria-checked', 'false');
+  });
+  item.classList.add('car-item--active');
+  item.setAttribute('aria-checked', 'true');
+  _updatePlateWidgets(item.querySelector('.car-item__number').textContent);
+}
+
+const _CAR_DELETE_SVG =
+  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M3 6H21M9.82324 11.3232L12 13.5M12 13.5L14.1768 15.6768M12 13.5L14.1768 11.3232M12 13.5L9.82324 15.6768M5 6H19V17.2C19 18.8802 19 19.7202 18.673 20.362C18.3854 20.9265 17.9265 21.3854 17.362 21.673C16.7202 22 15.8802 22 14.2 22H9.8C8.11984 22 7.27976 22 6.63803 21.673C6.07354 21.3854 5.6146 20.9265 5.32698 20.362C5 19.7202 5 18.8802 5 17.2V6ZM16 6H8C8 5.07003 8 4.60504 8.10222 4.22354C8.37962 3.18827 9.18827 2.37962 10.2235 2.10222C10.605 2 11.07 2 12 2C12.93 2 13.395 2 13.7765 2.10222C14.8117 2.37962 15.6204 3.18827 15.8978 4.22354C16 4.60504 16 5.07003 16 6Z"/>' +
+  '</svg>';
+
+const _modalDeleteCar = $('modal-delete-car');
+let _carToDelete = null;
+
+function _showDeleteCarModal(item) {
+  _carToDelete = item;
+  $('car-delete-plate').textContent = item.querySelector('.car-item__number').textContent;
+  _modalDeleteCar.classList.remove('hidden');
+}
+
+function _bindCarItem(item) {
+  item.addEventListener('click', e => {
+    if (e.target.closest('.car-item__delete')) return;
+    _selectCar(item);
+    closeAccountPanel(carsPanel);
+  });
+  const del = item.querySelector('.car-item__delete');
+  if (del) del.addEventListener('click', e => { e.stopPropagation(); _showDeleteCarModal(item); });
+}
+
+function _makeCarItem(plate) {
+  const div = document.createElement('div');
+  div.className = 'car-item';
+  div.setAttribute('role', 'radio');
+  div.setAttribute('aria-checked', 'false');
+  div.setAttribute('tabindex', '0');
+  div.innerHTML =
+    '<div class="car-item__plate">' +
+      '<div class="car-item__flag" aria-hidden="true"><div class="car-item__flag-blue"></div></div>' +
+      '<span class="car-item__number">' + plate + '</span>' +
+    '</div>' +
+    '<button class="car-item__delete" aria-label="Видалити автомобіль">' + _CAR_DELETE_SVG + '</button>';
+  _bindCarItem(div);
+  return div;
+}
+
+on($('btn-confirm-delete-car'), 'click', () => {
+  if (_carToDelete) { _carToDelete.remove(); _carToDelete = null; }
+  _modalDeleteCar.classList.add('hidden');
+});
+
+on($('btn-cancel-delete-car'), 'click', () => {
+  _carToDelete = null;
+  _modalDeleteCar.classList.add('hidden');
+});
+
+// Bind existing static car items
+document.querySelectorAll('.car-item').forEach(item => _bindCarItem(item));
+
+// ── Add car panel logic ───────────────────────────────────────────────
+const _plateInput    = $('car-plate-input');
+const _confirmCarBtn = $('btn-confirm-car');
+const _stdToggle     = $('toggle-std-plate');
+const _addCarForm    = $('add-car-form');
+
+function _isStdOn() {
+  return _stdToggle.getAttribute('aria-checked') === 'true';
+}
+
+function _checkCarForm() {
+  const raw = _plateInput.value.replace(/\s/g, '');
+  _confirmCarBtn.disabled = _isStdOn() ? raw.length < 8 : raw.length < 1;
+}
+
+function _resetAddCar() {
+  _stdToggle.setAttribute('aria-checked', 'true');
+  _addCarForm.classList.add('std-on');
+  _plateInput.value = '';
+  _plateInput.placeholder = 'AA 0000 AA';
+  _plateInput.setAttribute('maxlength', '10');
+  _confirmCarBtn.disabled = true;
+}
+
+_plateInput.addEventListener('input', () => {
+  if (_isStdOn()) _plateInput.value = _formatUaPlate(_plateInput.value);
+  _checkCarForm();
+});
+
+on($('btn-add-car-back'), 'click', () => closeAccountPanel(addCarPanel));
+
+on(_stdToggle, 'click', () => {
+  const isOn = _stdToggle.getAttribute('aria-checked') !== 'true';
+  _stdToggle.setAttribute('aria-checked', String(isOn));
+  _addCarForm.classList.toggle('std-on', isOn);
+  _plateInput.value = '';
+  _plateInput.placeholder = isOn ? 'AA 0000 AA' : 'Введіть номерний знак';
+  isOn ? _plateInput.setAttribute('maxlength', '10') : _plateInput.removeAttribute('maxlength');
+  _checkCarForm();
+});
+
+on(_confirmCarBtn, 'click', () => {
+  const plate = _plateInput.value.trim();
+  if (!plate) return;
+  const item = _makeCarItem(plate);
+  document.querySelector('.cars-add-btn').insertAdjacentElement('beforebegin', item);
+  _selectCar(item);
   closeAccountPanel(addCarPanel);
   closeAccountPanel(carsPanel);
   showSuccessPopup('Автомобіль додано', 'Номер успішно збережено');
 });
 
-on($('toggle-std-plate'), 'click', () => {
-  const t = $('toggle-std-plate');
-  const isOn = t.getAttribute('aria-checked') !== 'true';
-  t.setAttribute('aria-checked', String(isOn));
-  $('add-car-form').classList.toggle('std-on', isOn);
+document.querySelector('.cars-add-btn').addEventListener('click', () => {
+  _resetAddCar();
+  openAccountPanel(addCarPanel);
 });
-
-document.querySelector('.cars-add-btn') &&
-  document.querySelector('.cars-add-btn').addEventListener('click', () => openAccountPanel(addCarPanel));
 
 on($('btn-favorites-back'), 'click', () => closeAccountPanel(favoritesPanel));
 
@@ -2118,6 +2237,45 @@ on($('btn-nav-notifications'), 'click', e => {
 });
 
 on($('btn-cards-close'), 'click', closeAllAccountPanels);
+
+// ── Card selection (primary card) ─────────────────────────────────────
+function _selectCard(card) {
+  // Update cards panel selection
+  document.querySelectorAll('.credit-card').forEach(el => {
+    el.classList.remove('credit-card--active');
+    el.setAttribute('aria-checked', 'false');
+  });
+  card.classList.add('credit-card--active');
+  card.setAttribute('aria-checked', 'true');
+
+  // Sync payment panel: move matching pay-method-card to top and check it
+  const cardId = card.dataset.cardId;
+  const payMethodsWrap = document.querySelector('.payment-panel__body');
+  const allPayMethods = [...document.querySelectorAll('.pay-method-card')];
+  allPayMethods.forEach(el => {
+    el.classList.remove('pay-method-card--checked');
+    el.setAttribute('aria-checked', 'false');
+    el.querySelector('.pay-method-radio').classList.remove('pay-method-radio--checked');
+  });
+  const matchedPay = document.querySelector(`.pay-method-card[data-card-id="${cardId}"]`);
+  if (matchedPay) {
+    matchedPay.classList.add('pay-method-card--checked');
+    matchedPay.setAttribute('aria-checked', 'true');
+    matchedPay.querySelector('.pay-method-radio').classList.add('pay-method-radio--checked');
+    // Move to first position among pay-method-cards
+    const firstPay = document.querySelector('.pay-method-card');
+    if (firstPay && firstPay !== matchedPay) {
+      firstPay.parentNode.insertBefore(matchedPay, firstPay);
+    }
+  }
+}
+
+document.querySelectorAll('.credit-card').forEach(card => {
+  card.addEventListener('click', e => {
+    if (e.target.closest('.credit-card__delete')) return;
+    _selectCard(card);
+  });
+});
 
 // Delete card confirmation
 const modalDeleteCard = $('modal-delete-card');

@@ -238,6 +238,9 @@ function populateParkingCard(properties) {
           row('Пн–Нд (20:00–08:00)', '0 грн/год',  !inBusiness);
     }
   }
+  // Sync bookmark button — called only from event handlers; _favorites is initialized by then
+  const bm = $('btn-bookmark');
+  if (bm && _selectedPinKey) _syncSheetBookmarkBtn(_selectedPinKey);
 }
 
 // Currently selected map pin element + its geographic coordinates
@@ -303,6 +306,9 @@ const featuresByCoord   = new Map(); // "lng,lat" → original properties
 const clusterLabels     = new Map(); // cluster_id → mapboxgl.Marker (text overlay)
 const individualMarkers = new Map(); // "lng,lat"  → mapboxgl.Marker
 
+// Stable map key — rounds to 5dp (~1m) so querySourceFeatures float drift never mismatches
+function _mkKey(lng, lat) { return (+lng).toFixed(5) + ',' + (+lat).toFixed(5); }
+
 // Syncs HTML text labels over Mapbox cluster circles, and individual price pins.
 // The 'clusters' circle layer forces tile loading so querySourceFeatures works.
 function syncMarkers() {
@@ -354,7 +360,7 @@ function syncMarkers() {
   });
   const visiblePoints = new Map();
   rawPoints.forEach(f => {
-    const key = f.geometry.coordinates.slice(0, 2).join(',');
+    const key = _mkKey(f.geometry.coordinates[0], f.geometry.coordinates[1]);
     if (!visiblePoints.has(key)) visiblePoints.set(key, f);
   });
 
@@ -489,7 +495,7 @@ const _SVG_ROUTE = `<svg width="19" height="20" viewBox="-1 -1 19 20" overflow="
 function _makeSearchCard(feature) {
   const [lng, lat] = feature.geometry.coordinates;
   const props = feature.properties;
-  const key   = `${lng},${lat}`;
+  const key   = _mkKey(lng, lat);
 
   const refLat = _lastKnownPos ? _lastKnownPos[1] : 49.8375;
   const refLng = _lastKnownPos ? _lastKnownPos[0] : 24.0272;
@@ -556,8 +562,11 @@ function _makeSearchCard(feature) {
   const bmBtn = card.querySelector('.search-result-card__btn--bookmark');
   bmBtn.addEventListener('click', e => {
     e.stopPropagation();
-    const active = bmBtn.classList.toggle('bookmarked');
-    bmBtn.setAttribute('aria-label', active ? 'Видалити з обраних' : 'Зберегти в обране');
+    if (_favorites.has(key)) {
+      removeFavorite(key);
+    } else {
+      addFavorite(key, props, lat, lng);
+    }
   });
 
   const routeBtn = card.querySelector('.search-result-card__btn--route');
@@ -601,7 +610,7 @@ function loadParkingMarkers() {
       // Cache original properties keyed by coordinate so click handlers
       // always get the full object even after tile serialisation flattens it
       data.features.forEach(({ geometry, properties }) => {
-        const key = geometry.coordinates.slice(0, 2).join(',');
+        const key = _mkKey(geometry.coordinates[0], geometry.coordinates[1]);
         featuresByCoord.set(key, properties);
       });
       addParkingLayers();
@@ -1059,8 +1068,77 @@ function _lowerFinishBtn() {
   if (fin.parentElement !== sheet) { sheet.insertBefore(fin, sheet.firstChild); fin.classList.remove('finish--fixed'); }
 }
 
+// ── History system ─────────────────────────────────────────────────────
+let _sessionStartTime = null;
+
+const _HIST_BODY  = $('hist-body');
+const _HIST_EMPTY = $('hist-empty');
+
+function _fmt2(n) { return String(n).padStart(2, '0'); }
+function _fmtDate(d) { return `${_fmt2(d.getDate())}.${_fmt2(d.getMonth()+1)}.${d.getFullYear()}`; }
+function _fmtTime(d) { return `${_fmt2(d.getHours())}:${_fmt2(d.getMinutes())}`; }
+
+function _makeHistCard(entry) {
+  // entry: { date, timeStart, timeEnd, amount, address, plate, props, pinKey, lngLat }
+  const amenities = _SVG_FAV_LIGHTNING + (entry.props && hasDisabledSpots(entry.props) ? _SVG_FAV_WHEELCHAIR : '');
+  const bmSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;
+
+  const el = document.createElement('div');
+  el.className = 'fav-card';
+  el.innerHTML =
+    `<div class="fav-card__info">` +
+      `<div class="hist-card__row">` +
+        `<span class="hist-card__date">${entry.date}</span>` +
+        `<span class="hist-card__amount">${entry.amount}</span>` +
+      `</div>` +
+      `<div class="hist-card__detail">` +
+        `<span class="hist-card__address">${entry.address}</span>` +
+        `<span class="hist-card__plate">${entry.plate}</span>` +
+        `<span class="hist-card__time">${entry.timeStart} - ${entry.timeEnd}</span>` +
+      `</div>` +
+    `</div>` +
+    `<div class="fav-card__actions">` +
+      `<div class="fav-card__amenities">${amenities}</div>` +
+      `<div class="fav-card__btns">` +
+        `<button class="fav-btn fav-btn--gray hist-bm-btn" aria-label="Додати в обране">${bmSvg}</button>` +
+        `<button class="fav-btn fav-btn--accent" aria-label="Маршрут">${_SVG_FAV_ROUTE}</button>` +
+      `</div>` +
+    `</div>`;
+
+  const bmBtn = el.querySelector('.hist-bm-btn');
+  bmBtn.addEventListener('click', () => {
+    if (entry.pinKey && entry.props && entry.lngLat) {
+      const [lng, lat] = entry.lngLat;
+      if (_favorites.has(entry.pinKey)) {
+        removeFavorite(entry.pinKey);
+        bmBtn.innerHTML = bmSvg;
+      } else {
+        addFavorite(entry.pinKey, entry.props, lat, lng);
+        bmBtn.innerHTML = _SVG_BM_FILLED;
+      }
+    }
+  });
+  if (entry.pinKey && _favorites.has(entry.pinKey)) {
+    bmBtn.innerHTML = _SVG_BM_FILLED;
+  }
+
+  el.querySelectorAll('.fav-btn')[1].addEventListener('click', () => {
+    if (entry.lngLat) { _selectedPinLngLat = entry.lngLat; openNavPicker(); }
+  });
+
+  return el;
+}
+
+function addToHistory(entry) {
+  if (!_HIST_BODY) return;
+  const card = _makeHistCard(entry);
+  _HIST_BODY.insertBefore(card, _HIST_EMPTY ? _HIST_EMPTY.nextSibling : _HIST_BODY.firstChild);
+  if (_HIST_EMPTY) _HIST_EMPTY.style.display = 'none';
+}
+
 // ── Enter paid session (called after payment confirmed) ────────────────
 function enterPaidSession() {
+  _sessionStartTime = new Date();
   const gps = $('btn-gps'), sheet = $('bottom-sheet');
   if (gps.parentElement !== sheet) { sheet.insertBefore(gps, sheet.firstChild); gps.classList.remove('gps--fixed'); }
   _liftFinishBtn();
@@ -1102,6 +1180,7 @@ function enterPaidSession() {
 
 // ── Enter free session (no payment needed right now) ───────────────────
 function enterFreeSession() {
+  _sessionStartTime = new Date();
   const gps = $('btn-gps'), sheet = $('bottom-sheet');
   if (gps.parentElement !== sheet) { sheet.insertBefore(gps, sheet.firstChild); gps.classList.remove('gps--fixed'); }
   _liftFinishBtn();
@@ -1153,6 +1232,22 @@ function exitPaidSession() {
   if (addrEl) addrEl.textContent = ($('paid-session-name').textContent || '') +
                                    ($('paid-session-sub').textContent  || '');
   if (totEl)  totEl.textContent  = costGrn + ' грн';
+
+  // Record history entry
+  const endTime = new Date();
+  const d = _selectedParkingProps ? parseParkingData(_selectedParkingProps) : null;
+  const plate = (document.querySelector('.plate-widget__number') || {}).textContent || '—';
+  addToHistory({
+    date:      _fmtDate(endTime),
+    timeStart: _sessionStartTime ? _fmtTime(_sessionStartTime) : '—',
+    timeEnd:   _fmtTime(endTime),
+    amount:    costGrn + ' грн',
+    address:   d ? (d.mainName + (d.subName ? ' ' + d.subName : '')) : '—',
+    plate,
+    props:     _selectedParkingProps,
+    pinKey:    _selectedPinKey,
+    lngLat:    _selectedPinLngLat,
+  });
 
   if (_carMarker) { _carMarker.remove(); _carMarker = null; }
   $('phone-screen').classList.remove('is-parked');
@@ -1245,13 +1340,29 @@ function enterParkedState() {
 }
 
 function exitParkedState() {
-  // If expanded, return GPS to sheet first before showSheet resets state
   const sheet = $('bottom-sheet');
   if (sheet.classList.contains('is-expanded')) {
     sheet.classList.remove('is-expanded');
     sheet.insertBefore($('btn-gps'), sheet.firstChild);
     $('btn-gps').classList.remove('gps--fixed');
   }
+
+  // Record history entry (free session)
+  const endTime = new Date();
+  const d = _selectedParkingProps ? parseParkingData(_selectedParkingProps) : null;
+  const plate = (document.querySelector('.plate-widget__number') || {}).textContent || '—';
+  addToHistory({
+    date:      _fmtDate(endTime),
+    timeStart: _sessionStartTime ? _fmtTime(_sessionStartTime) : '—',
+    timeEnd:   _fmtTime(endTime),
+    amount:    '0 грн',
+    address:   d ? (d.mainName + (d.subName ? ' ' + d.subName : '')) : '—',
+    plate,
+    props:     _selectedParkingProps,
+    pinKey:    _selectedPinKey,
+    lngLat:    _selectedPinLngLat,
+  });
+
   showSheet('sheet-discovery');
   if (_carMarker) { _carMarker.remove(); _carMarker = null; }
   $('phone-screen').classList.remove('is-parked');
@@ -1462,16 +1573,125 @@ on($('nav-waze'), 'click', () => {
   openExternalNav(`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`);
 });
 
-// ── Bookmark toggle ───────────────────────────────────────────────────
-let isBookmarked = false;
+// ── Favorites system ─────────────────────────────────────────────────
+const _favorites = new Map(); // key → { props, lat, lng }
+const _FAV_BODY  = $('fav-body');
+const _FAV_EMPTY = $('fav-empty');
+
+const _SVG_BM_FILLED = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;
+const _SVG_FAV_LIGHTNING = `<svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const _SVG_FAV_WHEELCHAIR = `<svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const _SVG_FAV_ROUTE = `<svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>`;
+
+function _updateFavEmpty() {
+  if (!_FAV_EMPTY) return;
+  _FAV_EMPTY.style.display = _favorites.size === 0 ? 'flex' : 'none';
+}
+
+function _syncSheetBookmarkBtn(key) {
+  const bm = $('btn-bookmark');
+  if (!bm) return;
+  const booked = _favorites.has(key);
+  bm.classList.toggle('bookmarked', booked);
+  bm.setAttribute('aria-pressed', String(booked));
+  bm.setAttribute('aria-label', booked ? 'Видалити з обраних' : 'Зберегти в обране');
+}
+
+function _syncSearchCardsBm(key, isBookmarked) {
+  document.querySelectorAll(`.search-result-card[data-key] .search-result-card__btn--bookmark`).forEach(btn => {
+    const card = btn.closest('.search-result-card');
+    if (card && card.dataset.key === key) {
+      btn.classList.toggle('bookmarked', isBookmarked);
+      btn.setAttribute('aria-label', isBookmarked ? 'Видалити з обраних' : 'Зберегти в обране');
+    }
+  });
+}
+
+function _makeFavCard(key, props, lat, lng) {
+  const d = parseParkingData(props);
+  const isVariable = d.iconColor !== '#e65100';
+  const refLat = _lastKnownPos ? _lastKnownPos[1] : 49.8375;
+  const refLng = _lastKnownPos ? _lastKnownPos[0] : 24.0272;
+  const distMins = Math.max(1, Math.round(haversineKm(refLat, refLng, lat, lng) / 0.5));
+  const address  = d.mainName + (d.subName ? ' ' + d.subName : '');
+  const amenities = _SVG_FAV_LIGHTNING + (hasDisabledSpots(props) ? _SVG_FAV_WHEELCHAIR : '');
+
+  let priceRow;
+  if (!isVariable) {
+    priceRow = `<span class="fav-card__price">${d.price}</span><span class="fav-card__distance">${distMins} хв</span>`;
+  } else {
+    const now = new Date();
+    const inBusiness = now.getHours() >= 8 && now.getHours() < 20;
+    const isWeekday  = now.getDay() >= 1 && now.getDay() <= 5;
+    const isPaid = d.iconColor === '#9c27b0' ? (isWeekday && inBusiness) : inBusiness;
+    const cur   = isPaid ? d.price : '0 грн/год';
+    const other = isPaid ? '0 грн/год' : d.price;
+    const dot   = _secsUntilTariffChange() <= 3600 ? '<span class="fav-card__dot"></span>' : '';
+    priceRow =
+      `<div class="fav-card__price-left">` +
+        `<span class="fav-card__price fav-card__price--medium">${cur}</span>` +
+        `<span class="fav-card__price fav-card__price--muted">— ${other}</span>${dot}` +
+      `</div>` +
+      `<span class="fav-card__distance fav-card__distance--medium">${distMins} хв</span>`;
+  }
+
+  const el = document.createElement('div');
+  el.className   = 'fav-card';
+  el.dataset.key = key;
+  el.innerHTML =
+    `<div class="fav-card__info">` +
+      `<div class="fav-card__price-row">${priceRow}</div>` +
+      `<p class="fav-card__address">${address}</p>` +
+    `</div>` +
+    `<div class="fav-card__actions">` +
+      `<div class="fav-card__amenities">${amenities}</div>` +
+      `<div class="fav-card__btns">` +
+        `<button class="fav-btn fav-btn--gray" aria-label="Видалити з обраного">${_SVG_BM_FILLED}</button>` +
+        `<button class="fav-btn fav-btn--accent" aria-label="Маршрут">${_SVG_FAV_ROUTE}</button>` +
+      `</div>` +
+    `</div>`;
+
+  el.querySelectorAll('.fav-btn')[0].addEventListener('click', () => removeFavorite(key));
+  el.querySelectorAll('.fav-btn')[1].addEventListener('click', () => {
+    _selectedPinLngLat = [lng, lat];
+    openNavPicker();
+  });
+  return el;
+}
+
+function addFavorite(key, props, lat, lng) {
+  if (_favorites.has(key)) return;
+  _favorites.set(key, { props, lat, lng });
+  if (_FAV_BODY) {
+    const card = _makeFavCard(key, props, lat, lng);
+    _FAV_BODY.insertBefore(card, _FAV_EMPTY ? _FAV_EMPTY.nextSibling : _FAV_BODY.firstChild);
+  }
+  _updateFavEmpty();
+  _syncSearchCardsBm(key, true);
+  if (_selectedPinKey === key) _syncSheetBookmarkBtn(key);
+}
+
+function removeFavorite(key) {
+  if (!_favorites.has(key)) return;
+  _favorites.delete(key);
+  if (_FAV_BODY) {
+    const card = _FAV_BODY.querySelector(`.fav-card[data-key="${CSS.escape(key)}"]`);
+    if (card) card.remove();
+  }
+  _updateFavEmpty();
+  _syncSearchCardsBm(key, false);
+  if (_selectedPinKey === key) _syncSheetBookmarkBtn(key);
+}
+
+// ── Bookmark toggle (sheet) ───────────────────────────────────────────
 on($('btn-bookmark'), 'click', () => {
-  isBookmarked = !isBookmarked;
-  $('btn-bookmark').classList.toggle('bookmarked', isBookmarked);
-  $('btn-bookmark').setAttribute('aria-pressed', String(isBookmarked));
-  $('btn-bookmark').setAttribute(
-    'aria-label',
-    isBookmarked ? 'Видалити з обраних' : 'Зберегти в обране'
-  );
+  if (!_selectedPinKey || !_selectedParkingProps || !_selectedPinLngLat) return;
+  const [lng, lat] = _selectedPinLngLat;
+  if (_favorites.has(_selectedPinKey)) {
+    removeFavorite(_selectedPinKey);
+  } else {
+    addFavorite(_selectedPinKey, _selectedParkingProps, lat, lng);
+  }
 });
 
 // ── Search panel ──────────────────────────────────────────────────────
@@ -1540,7 +1760,7 @@ function closeSearchPanel(clearCtx = true) {
   if (searchPanelInput) searchPanelInput.value = '';
   if (searchClearBtn) searchClearBtn.classList.add('hidden');
   const actions = $('sheet-actions');
-  if (actions) actions.classList.remove('hidden');
+  if (actions) actions.classList.toggle('hidden', $('bottom-sheet').dataset.state !== 'neutral');
   _hideSuggestions();
   if (clearCtx) {
     _clearSearchContext();
@@ -2031,7 +2251,19 @@ on($('btn-nav-support'), 'click', e => {
 
 // Settings: reminder toggle
 const reminderToggle = $('toggle-reminder');
-on(reminderToggle, 'click', () => reminderToggle.classList.toggle('is-off'));
+const _reminderCheckboxList = reminderToggle.closest('.settings-card').querySelector('.settings-checkbox-list');
+
+function _syncReminderCheckboxes() {
+  if (_reminderCheckboxList)
+    _reminderCheckboxList.classList.toggle('is-disabled', reminderToggle.classList.contains('is-off'));
+}
+
+on(reminderToggle, 'click', () => {
+  reminderToggle.classList.toggle('is-off');
+  _syncReminderCheckboxes();
+});
+
+_syncReminderCheckboxes(); // init on load
 
 // Settings: dark theme toggle (synced with main btn-theme)
 const darkThemeToggle = $('toggle-dark-theme');
@@ -2227,8 +2459,33 @@ on($('btn-nav-favorites'), 'click', e => {
 on($('btn-notifications-back'), 'click', () => closeAccountPanel(notificationsPanel));
 on($('btn-notification-detail-back'), 'click', () => closeAccountPanel(notificationDetailPanel));
 
-on($('notif-item-1'), 'click', () => openAccountPanel(notificationDetailPanel));
-on($('notif-item-2'), 'click', () => openAccountPanel(notificationDetailPanel));
+const _notifications = {
+  'notif-item-1': {
+    title:   'Дублювання сповіщень',
+    date:    '23 квіт. 2026 р.',
+    text:    'Вітаємо! Перепрошуємо за технічний збій, через який ви отримали кілька копій повідомлення про зміну тарифів. Ми вже працюємо над виправленням цієї помилки, щоб надалі ви отримували лише актуальну та перевірену інформацію в одному екземплярі.\nДякуємо за розуміння!',
+    time:    '05:26',
+  },
+  'notif-item-2': {
+    title:   'Новий тариф',
+    date:    '1 трав. 2026 р.',
+    text:    'З 1 травня діють нові тарифи паркування.',
+    time:    '09:00',
+  },
+};
+
+function openNotificationDetail(id) {
+  const n = _notifications[id];
+  if (!n) return;
+  $('notif-detail-title').textContent = n.title;
+  document.querySelector('#notification-detail-panel .notif-date').textContent = n.date;
+  document.querySelector('#notification-detail-panel .notif-bubble__text').textContent = n.text;
+  document.querySelector('#notification-detail-panel .notif-time').textContent = n.time;
+  openAccountPanel(notificationDetailPanel);
+}
+
+on($('notif-item-1'), 'click', () => openNotificationDetail('notif-item-1'));
+on($('notif-item-2'), 'click', () => openNotificationDetail('notif-item-2'));
 
 on($('btn-nav-notifications'), 'click', e => {
   e.preventDefault();
@@ -2325,8 +2582,8 @@ document.querySelectorAll('.method-card').forEach(card => {
   card.addEventListener('click', () => {
     _selectedMethod = card.dataset.method;
     const dest = _selectedMethod === 'email'
-      ? 'darianmildellis@gmail.com'
-      : '+38 (099) 123 45 67';
+      ? ($('field-email').value.trim() || 'darianmildellis@gmail.com')
+      : ($('field-phone').value.trim() || '+38 (099) 123 45 67');
     $('otp-info-dest').textContent = dest;
     $('otp-code-input').value = '';
     updateOtpConfirmBtn();
@@ -2630,4 +2887,175 @@ on($('voice-mic-btn'), 'click', () => {
     voiceTranscript.textContent = '';
     _startRecognition();
   }
+});
+
+// ── Welcome screen ────────────────────────────────────────────────────
+function dismissWelcome() {
+  const ws = $('welcome-screen');
+  if (!ws) return;
+  ws.classList.add('is-dismissing');
+  setTimeout(() => { ws.style.display = 'none'; ws.classList.remove('is-dismissing'); }, 400);
+}
+
+function showWelcomeScreen() {
+  const ws = $('welcome-screen');
+  if (!ws) return;
+  ws.style.display = '';
+  requestAnimationFrame(() => ws.classList.remove('is-dismissing'));
+}
+
+const registerPanel = $('register-panel');
+const loginPanel    = $('login-panel');
+
+on($('btn-welcome-register'), 'click', () => {
+  dismissWelcome();
+  openAccountPanel(registerPanel);
+});
+
+on($('btn-welcome-login'), 'click', () => {
+  dismissWelcome();
+  openAccountPanel(loginPanel);
+});
+
+// ── Login panel ───────────────────────────────────────────────────────
+on($('btn-login-back'), 'click', () => closeAccountPanel(loginPanel));
+
+on($('btn-login-submit'), 'click', () => {
+  closeAccountPanel(loginPanel);
+});
+
+on($('btn-forgot-password'), 'click', () => {
+  closeAccountPanel(loginPanel);
+  openAccountPanel(verifyMethodPanel);
+});
+
+on($('btn-login-to-register'), 'click', () => {
+  closeAccountPanel(loginPanel);
+  openAccountPanel(registerPanel);
+});
+
+// ── Register panel ────────────────────────────────────────────────────
+on($('btn-register-back'), 'click', () => closeAccountPanel(registerPanel));
+
+// Phone mask: +380 XX XXX XXXX (max 9 digits after the prefix)
+(function initRegPhone() {
+  const input = $('reg-phone');
+  if (!input) return;
+
+  function applyMask(raw) {
+    // Extract only digits
+    let digits = raw.replace(/\D/g, '');
+    // Strip leading 380 if already present (user may type 380...)
+    if (digits.startsWith('380')) digits = digits.slice(3);
+    // Limit to 9 digits (operator code 2 + number 7)
+    digits = digits.slice(0, 9);
+    if (!digits.length) return '';
+    let result = '+380';
+    if (digits.length > 0) result += ' ' + digits.slice(0, 2);
+    if (digits.length > 2) result += ' ' + digits.slice(2, 5);
+    if (digits.length > 5) result += ' ' + digits.slice(5, 9);
+    return result;
+  }
+
+  input.addEventListener('keydown', e => {
+    // Allow control keys
+    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'].includes(e.key)) return;
+    if (e.ctrlKey || e.metaKey) return;
+    // Block non-digits
+    if (!/\d/.test(e.key)) e.preventDefault();
+  });
+
+  input.addEventListener('input', () => {
+    const pos = input.selectionStart;
+    const masked = applyMask(input.value);
+    input.value = masked;
+    // Try to restore cursor near end of typed digits
+    const newPos = Math.min(pos, masked.length);
+    input.setSelectionRange(newPos, newPos);
+    updateRegisterBtn();
+  });
+})();
+
+// Button enable/disable: phone must be full (+380 XX XXX XXXX = 12 digits) AND password >= 10 chars
+function updateRegisterBtn() {
+  const phoneDigits = ($('reg-phone').value || '').replace(/\D/g, '');
+  const pwd = ($('reg-password').value || '');
+  const valid = phoneDigits.length === 12 && pwd.length >= 10;
+  const btn = $('btn-register-submit');
+  if (btn) {
+    btn.disabled = !valid;
+    btn.setAttribute('aria-disabled', String(!valid));
+  }
+}
+
+on($('reg-password'), 'input', updateRegisterBtn);
+
+on($('btn-register-submit'), 'click', () => {
+  const name    = $('reg-name').value.trim();
+  const email   = $('reg-email').value.trim();
+  const phone   = $('reg-phone').value.trim();
+  const terms   = $('reg-terms-check').checked;
+
+  if (!name || !email || !phone) {
+    showToast('Заповніть усі обов\'язкові поля');
+    return;
+  }
+  if (!terms) {
+    showToast('Підтвердіть згоду з умовами');
+    return;
+  }
+
+  // Write entered data into the account panel fields
+  const fieldName  = $('field-name');
+  const fieldEmail = $('field-email');
+  const fieldPhone = $('field-phone');
+  if (fieldName)  fieldName.value  = name;
+  if (fieldEmail) fieldEmail.value = email;
+  if (fieldPhone) fieldPhone.value = phone;
+
+  // Clear registration form and return to main screen
+  [$('reg-name'), $('reg-email'), $('reg-phone'), $('reg-password'), $('reg-confirm')]
+    .forEach(el => { if (el) el.value = ''; });
+  $('reg-terms-check').checked = false;
+  updateRegisterBtn();
+
+  closeAccountPanel(registerPanel);
+});
+
+// ── Logout popup ──────────────────────────────────────────────────────
+function openLogoutPrompt() {
+  $('logout-prompt').classList.add('is-open');
+  $('logout-backdrop').classList.add('is-open');
+}
+function closeLogoutPrompt() {
+  $('logout-prompt').classList.remove('is-open');
+  $('logout-backdrop').classList.remove('is-open');
+}
+
+on($('btn-logout'), 'click', openLogoutPrompt);
+on($('btn-logout-no'), 'click', closeLogoutPrompt);
+on($('logout-backdrop'), 'click', closeLogoutPrompt);
+on($('btn-logout-yes'), 'click', () => {
+  closeLogoutPrompt();
+  allAccountPanels.forEach(p => { if (p) p.classList.remove('is-open'); });
+  showWelcomeScreen();
+});
+
+// ── Delete account popup ──────────────────────────────────────────────
+function openDeleteAccountPrompt() {
+  $('delete-account-prompt').classList.add('is-open');
+  $('delete-account-backdrop').classList.add('is-open');
+}
+function closeDeleteAccountPrompt() {
+  $('delete-account-prompt').classList.remove('is-open');
+  $('delete-account-backdrop').classList.remove('is-open');
+}
+
+on($('btn-delete-account'), 'click', openDeleteAccountPrompt);
+on($('btn-delete-account-no'), 'click', closeDeleteAccountPrompt);
+on($('delete-account-backdrop'), 'click', closeDeleteAccountPrompt);
+on($('btn-delete-account-yes'), 'click', () => {
+  closeDeleteAccountPrompt();
+  allAccountPanels.forEach(p => { if (p) p.classList.remove('is-open'); });
+  showWelcomeScreen();
 });

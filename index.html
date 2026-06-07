@@ -659,7 +659,8 @@
               <label class="account-field__label" for="field-phone">Номер телефону</label>
               <input class="account-field__value" id="field-phone" type="tel" value="+38 (097) 456 78 90" autocomplete="tel">
             </div>
-            <button class="btn btn--secondary btn--full" id="btn-change-password">Змінити пароль</button>
+            <button class="btn btn--black btn--full" id="btn-change-password">Змінити пароль</button>
+            <button class="btn btn--secondary btn--full" id="btn-logout">Вийти з акаунту</button>
           </div>
           <button class="account-delete-btn" id="btn-delete-account">Видалити акаунт</button>
         </div>
@@ -924,87 +925,11 @@
             </button>
             <h1 class="account-panel__title account-panel__title--bold">Улюблені парковки</h1>
           </div>
-          <div class="fav-body">
-
-            <!-- Card 1 -->
-            <div class="fav-card">
-              <div class="fav-card__info">
-                <div class="fav-card__price-row">
-                  <span class="fav-card__price">35 грн/год</span>
-                  <span class="fav-card__distance">5 хв</span>
-                </div>
-                <p class="fav-card__address">пл. Міцкевича</p>
-              </div>
-              <div class="fav-card__actions">
-                <div class="fav-card__amenities">
-                  <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="fav-card__btns">
-                  <button class="fav-btn fav-btn--gray" aria-label="Видалити з обраного">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                  </button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут">
-                    <svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>
-                  </button>
-                </div>
-              </div>
+          <div class="fav-body" id="fav-body">
+            <div class="fav-empty" id="fav-empty">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#AEAFB1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              <p class="fav-empty__text">Тут з'являться ваші улюблені парковки</p>
             </div>
-
-            <!-- Card 2 -->
-            <div class="fav-card">
-              <div class="fav-card__info">
-                <div class="fav-card__price-row">
-                  <div class="fav-card__price-left">
-                    <span class="fav-card__price fav-card__price--medium">0 грн/год</span>
-                    <span class="fav-card__price fav-card__price--muted">— 35 грн/год</span>
-                    <span class="fav-card__dot"></span>
-                  </div>
-                  <span class="fav-card__distance fav-card__distance--medium">8 хв</span>
-                </div>
-                <p class="fav-card__address">вул. Стефаника (від пер. Скорика до пер. вул Дудаєва)</p>
-              </div>
-              <div class="fav-card__actions">
-                <div class="fav-card__amenities">
-                  <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="fav-card__btns">
-                  <button class="fav-btn fav-btn--gray" aria-label="Видалити з обраного">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                  </button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут">
-                    <svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="fav-card">
-              <div class="fav-card__info">
-                <div class="fav-card__price-row">
-                  <span class="fav-card__price">45 грн/год</span>
-                  <span class="fav-card__distance">12 хв</span>
-                </div>
-                <p class="fav-card__address">Вернісаж</p>
-              </div>
-              <div class="fav-card__actions">
-                <div class="fav-card__amenities">
-                  <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="fav-card__btns">
-                  <button class="fav-btn fav-btn--gray" aria-label="Видалити з обраного">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                  </button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут">
-                    <svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
 
@@ -1018,128 +943,11 @@
             </button>
             <h1 class="account-panel__title account-panel__title--bold">Історія паркувань</h1>
           </div>
-          <div class="fav-body">
-
-            <div class="fav-card">
-              <div class="fav-card__info">
-                <div class="hist-card__row">
-                  <span class="hist-card__date">02.06.2026</span>
-                  <span class="hist-card__amount">35 грн</span>
-                </div>
-                <div class="hist-card__detail">
-                  <span class="hist-card__address">вул. Стефаника (від пер. Скорика до пер. вул Дудаєва)</span>
-                  <span class="hist-card__plate">BC 1234 AA</span>
-                  <span class="hist-card__time">14:00 - 15:00</span>
-                </div>
-              </div>
-              <div class="fav-card__actions">
-                <div class="fav-card__amenities">
-                  <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="fav-card__btns">
-                  <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
-                </div>
-              </div>
+          <div class="fav-body" id="hist-body">
+            <div class="fav-empty" id="hist-empty">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#AEAFB1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <p class="fav-empty__text">Тут з'являться завершені сесії паркування</p>
             </div>
-
-            <div class="fav-card">
-              <div class="fav-card__info">
-                <div class="hist-card__row">
-                  <span class="hist-card__date">05.06.2026</span>
-                  <span class="hist-card__amount">45 грн</span>
-                </div>
-                <div class="hist-card__detail">
-                  <span class="hist-card__address">пл. Міцкевича</span>
-                  <span class="hist-card__plate">BC 1234 AA</span>
-                  <span class="hist-card__time">14:00 - 16:00</span>
-                </div>
-              </div>
-              <div class="fav-card__actions">
-                <div class="fav-card__amenities">
-                  <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="fav-card__btns">
-                  <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
-                </div>
-              </div>
-            </div>
-
-            <div class="fav-card">
-              <div class="fav-card__info">
-                <div class="hist-card__row">
-                  <span class="hist-card__date">09.05.2026</span>
-                  <span class="hist-card__amount">20 грн</span>
-                </div>
-                <div class="hist-card__detail">
-                  <span class="hist-card__address">вул. Винниченка</span>
-                  <span class="hist-card__plate">BC 1234 AA</span>
-                  <span class="hist-card__time">09:00 - 11:00</span>
-                </div>
-              </div>
-              <div class="fav-card__actions">
-                <div class="fav-card__amenities">
-                  <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="fav-card__btns">
-                  <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
-                </div>
-              </div>
-            </div>
-
-            <div class="fav-card">
-              <div class="fav-card__info">
-                <div class="hist-card__row">
-                  <span class="hist-card__date">23.05.2026</span>
-                  <span class="hist-card__amount">45 грн</span>
-                </div>
-                <div class="hist-card__detail">
-                  <span class="hist-card__address">Вернісаж</span>
-                  <span class="hist-card__plate">BC 1234 AA</span>
-                  <span class="hist-card__time">10:00 - 12:00</span>
-                </div>
-              </div>
-              <div class="fav-card__actions">
-                <div class="fav-card__amenities">
-                  <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="fav-card__btns">
-                  <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
-                </div>
-              </div>
-            </div>
-
-            <div class="fav-card">
-              <div class="fav-card__info">
-                <div class="hist-card__row">
-                  <span class="hist-card__date">22.05.2026</span>
-                  <span class="hist-card__amount">35 грн</span>
-                </div>
-                <div class="hist-card__detail">
-                  <span class="hist-card__address">вул. Стефаника (від пер. Скорика до пер. вул Дудаєва)</span>
-                  <span class="hist-card__plate">BC 1234 AA</span>
-                  <span class="hist-card__time">14:00 - 15:00</span>
-                </div>
-              </div>
-              <div class="fav-card__actions">
-                <div class="fav-card__amenities">
-                  <svg width="24" height="24" viewBox="2 1.5 20 21" fill="none" aria-hidden="true"><path d="M13.3824 16.5244C13.2052 17.2956 12.8298 18.0073 12.2934 18.589C11.757 19.1707 11.0781 19.6024 10.3238 19.8414C9.56946 20.0804 8.76582 20.1185 7.99228 19.9519C7.21874 19.7852 6.50207 19.4196 5.91308 18.8912C5.32408 18.3628 4.88316 17.6898 4.63387 16.9388C4.38458 16.1878 4.33555 15.3848 4.49163 14.6091C4.64771 13.8333 5.00349 13.1117 5.52382 12.5156C6.04415 11.9194 6.71103 11.4694 7.45855 11.2098" stroke="#515357" stroke-width="2" stroke-linecap="round"/><circle cx="9.25532" cy="5.47749" r="2.68599" fill="#515357"/><path d="M9.25586 6.24487L10.407 14.3028L17.6975 13.9191L18.465 18.5237H19.9998" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.709 9.69824L16.5461 10.4657" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg width="24" height="24" viewBox="0 0 17 23" fill="none" aria-hidden="true"><path d="M7.65083 7.28636L8.95133 1.9918C9.03423 1.6539 9.07573 1.48494 9.03423 1.35196C8.99783 1.23539 8.92003 1.13618 8.81553 1.07303C8.69633 1.00098 8.52233 1.00098 8.17433 1.00098H4.30173C4.08421 1.00098 3.97545 1.00098 3.88422 1.03843C3.80369 1.07148 3.73319 1.12498 3.67969 1.19363C3.61907 1.27142 3.5898 1.37617 3.53125 1.58566L1.47609 8.93971C1.09052 10.3194 0.897726 11.0093 1.05484 11.5546C1.19247 12.0324 1.50312 12.4418 1.92621 12.7029C2.40915 13.001 3.12544 13.001 4.55801 13.001H7.67283C7.98373 13.001 8.13913 13.001 8.25223 13.0637C8.35153 13.1187 8.42913 13.2059 8.47233 13.3109C8.52153 13.4305 8.50353 13.5849 8.46753 13.8936L7.83953 19.2802C7.71483 20.3497 7.65253 20.8844 7.79163 21.0497C7.91133 21.1919 8.10003 21.256 8.28153 21.2161C8.49263 21.1696 8.76873 20.7075 9.32093 19.7831L15.4716 9.48748C15.7083 9.09118 15.8267 8.89308 15.8113 8.73011C15.7978 8.588 15.7243 8.45841 15.6092 8.37399C15.4772 8.27718 15.2464 8.27718 14.7848 8.27718H8.42773C8.07983 8.27718 7.90583 8.27718 7.78663 8.20513C7.68213 8.14199 7.60433 8.04277 7.56793 7.9262C7.52633 7.79322 7.56783 7.62426 7.65083 7.28636Z" stroke="#515357" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="fav-card__btns">
-                  <button class="fav-btn fav-btn--gray" aria-label="Додати в обране"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                  <button class="fav-btn fav-btn--accent" aria-label="Маршрут"><svg width="20" height="20" viewBox="-1 -1 19 20" overflow="visible" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.192 0L17 4.702L12.192 9.403M15.242 4.702H6.8C3.044 4.702 0 7.679 0 11.351C0 15.023 3.044 18 6.8 18H7.367"/></svg></button>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
 
@@ -1680,6 +1488,22 @@
           <button class="pay-prompt__no" id="btn-end-session-no">Ні</button>
         </div>
 
+        <!-- Logout confirmation popup -->
+        <div class="pay-prompt-backdrop" id="logout-backdrop" aria-hidden="true"></div>
+        <div class="pay-prompt" id="logout-prompt" role="dialog" aria-modal="true" aria-hidden="true">
+          <p class="pay-prompt__title">Ви точно хочете вийти з акаунту?</p>
+          <button class="btn btn--primary btn--full pay-prompt__yes" id="btn-logout-yes">Так</button>
+          <button class="pay-prompt__no" id="btn-logout-no">Ні</button>
+        </div>
+
+        <!-- Delete account confirmation popup -->
+        <div class="pay-prompt-backdrop" id="delete-account-backdrop" aria-hidden="true"></div>
+        <div class="pay-prompt" id="delete-account-prompt" role="dialog" aria-modal="true" aria-hidden="true">
+          <p class="pay-prompt__title">Ви точно хочете видалити акаунт? Цю дію неможливо скасувати.</p>
+          <button class="btn btn--full pay-prompt__yes pay-prompt__yes--danger" id="btn-delete-account-yes">Видалити</button>
+          <button class="pay-prompt__no" id="btn-delete-account-no">Скасувати</button>
+        </div>
+
         <!-- ── Voice search overlay ──────────────────────────────── -->
         <div class="voice-overlay" id="voice-overlay" aria-hidden="true" aria-label="Голосовий пошук" role="dialog">
           <div class="voice-overlay__top">
@@ -1701,6 +1525,114 @@
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
+          </div>
+        </div>
+
+        <!-- ╔══════════════════════════════╗ -->
+        <!-- ║  LOGIN PANEL               ║ -->
+        <!-- ╚══════════════════════════════╝ -->
+        <div class="account-panel login-panel" id="login-panel" aria-hidden="true" aria-label="Вхід">
+          <div class="account-panel__header">
+            <button class="panel-back-btn" id="btn-login-back" aria-label="Назад">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <h1 class="account-panel__title account-panel__title--bold">Вхід</h1>
+          </div>
+          <div class="account-panel__body login-panel__body">
+            <div class="account-field">
+              <label class="account-field__label reg-label" for="login-email">Електронна пошта</label>
+              <input class="account-field__value" id="login-email" type="email"
+                     placeholder="example@email.com" autocomplete="email">
+            </div>
+            <div class="account-field">
+              <label class="account-field__label reg-label reg-label--medium" for="login-password">Пароль</label>
+              <input class="account-field__value" id="login-password" type="password"
+                     placeholder="Введіть пароль" autocomplete="current-password">
+            </div>
+            <button class="login-forgot-btn" id="btn-forgot-password">Забули пароль?</button>
+            <button class="reg-submit-btn" id="btn-login-submit">Увійти</button>
+          </div>
+          <div class="login-panel__footer">
+            <button class="login-register-link" id="btn-login-to-register">Ще немає акаунту? <span>Зареєструватись</span></button>
+          </div>
+        </div>
+
+        <!-- ╔══════════════════════════════╗ -->
+        <!-- ║  REGISTER PANEL            ║ -->
+        <!-- ╚══════════════════════════════╝ -->
+        <div class="account-panel" id="register-panel" aria-hidden="true" aria-label="Реєстрація">
+          <div class="account-panel__header">
+            <button class="panel-back-btn" id="btn-register-back" aria-label="Назад">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <h1 class="account-panel__title account-panel__title--bold">Реєстрація</h1>
+          </div>
+          <div class="account-panel__body register-panel__body">
+            <div class="account-field">
+              <label class="account-field__label reg-label" for="reg-name">ПІБ*</label>
+              <input class="account-field__value" id="reg-name" type="text"
+                     placeholder="Прізвище Ім'я По батькові" autocomplete="name">
+            </div>
+            <div class="account-field">
+              <label class="account-field__label reg-label" for="reg-email">Електронна пошта*</label>
+              <input class="account-field__value" id="reg-email" type="email"
+                     placeholder="example@email.com" autocomplete="email">
+            </div>
+            <div class="account-field">
+              <label class="account-field__label reg-label" for="reg-phone">Номер телефону*</label>
+              <input class="account-field__value" id="reg-phone" type="tel"
+                     placeholder="+380 XX XXX XXXX" maxlength="16" autocomplete="tel"
+                     inputmode="numeric">
+            </div>
+            <div class="account-field">
+              <label class="account-field__label reg-label reg-label--medium" for="reg-password">Пароль</label>
+              <input class="account-field__value" id="reg-password" type="password"
+                     placeholder="Введіть пароль" autocomplete="new-password">
+              <p class="reg-hint">*Мінімум 10 символів</p>
+            </div>
+            <div class="account-field">
+              <label class="account-field__label reg-label reg-label--medium" for="reg-confirm">Підтвердіть пароль</label>
+              <input class="account-field__value" id="reg-confirm" type="password"
+                     placeholder="Повторіть пароль" autocomplete="new-password">
+            </div>
+            <label class="reg-terms" for="reg-terms-check">
+              <input type="checkbox" id="reg-terms-check" class="reg-terms__input">
+              <span class="reg-terms__box" aria-hidden="true"></span>
+              <span class="reg-terms__text">Я погоджуюсь з Умовами використання та Політикою конфідеційності</span>
+            </label>
+            <button class="reg-submit-btn" id="btn-register-submit" disabled aria-disabled="true">Зареєструватись</button>
+          </div>
+        </div>
+
+        <!-- ╔══════════════════════════════╗ -->
+        <!-- ║  WELCOME SCREEN             ║ -->
+        <!-- ╚══════════════════════════════╝ -->
+        <div class="welcome-screen" id="welcome-screen" role="dialog" aria-modal="true" aria-label="Ласкаво просимо до Nyro">
+          <div class="welcome-screen__bg" aria-hidden="true"></div>
+          <div class="welcome-screen__content">
+            <div class="welcome-screen__top">
+              <div class="welcome-screen__logo" aria-hidden="true">
+                <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" style="border-radius:20px;flex-shrink:0">
+                  <rect width="56" height="56" rx="20" fill="#AFEE00"/>
+                  <path d="M9.12 37.99H6.32C5.94 37.99 5.75 37.54 6.02 37.28L24.26 18.71C24.34 18.62 24.45 18.58 24.56 18.58H27.81C27.98 18.58 28.14 18.68 28.2 18.83L32.66 29.21C32.77 29.47 33.1 29.55 33.32 29.37L46.97 18.11C47.05 18.05 47.15 18.01 47.25 18.01H50.34C50.7 18.01 50.9 18.45 50.65 18.72L32.88 37.85C32.8 37.94 32.69 37.99 32.57 37.99H28.98C28.82 37.99 28.67 37.89 28.6 37.75L23.94 28.08C23.82 27.84 23.52 27.76 23.31 27.92L9.37 37.91C9.3 37.96 9.21 37.99 9.12 37.99Z" fill="#141515"/>
+                </svg>
+                <span class="welcome-screen__brand">Nyro</span>
+              </div>
+              <h1 class="welcome-screen__headline">ПАРКУВАННЯ<br>У ЛЬВОВІ</h1>
+              <p class="welcome-screen__sub">Знаходьте та оплачуйте<br>парковку за кілька секунд</p>
+            </div>
+            <div class="welcome-screen__actions">
+              <button class="welcome-screen__btn-primary" id="btn-welcome-register">Створити акаунт</button>
+              <button class="welcome-screen__btn-secondary" id="btn-welcome-login">Увійти</button>
+            </div>
           </div>
         </div>
 

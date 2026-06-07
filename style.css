@@ -548,6 +548,14 @@ body {
 }
 .btn--primary:hover:not(:disabled) { filter: brightness(1.06); }
 
+/* Black */
+.btn--black {
+  background: #141515;
+  color: #ffffff;
+  width: 100%;
+}
+.btn--black:hover:not(:disabled) { filter: brightness(1.12); }
+
 /* Secondary */
 .btn--secondary {
   background: transparent;
@@ -807,7 +815,7 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 24px 32px 16px;
+  padding: 16px 32px 12px;
   color: var(--text-primary);
   font-family: 'Wix Madefor Text', var(--font-family);
   font-size: 16px;
@@ -854,6 +862,7 @@ body {
 .drawer__footer {
   border-top: 1px solid var(--border);
   padding: 0;
+  flex-shrink: 0;
 }
 
 /* Theme toggle icons — swap sun/moon based on active theme */
@@ -2274,6 +2283,24 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 .fav-btn--gray  { background: #E9E9E9; color: #000000; }
 .fav-btn--accent { background: var(--accent); color: #000000; }
 
+.fav-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+  padding: 40px 32px;
+  text-align: center;
+}
+.fav-empty__text {
+  font-family: 'Wix Madefor Text', var(--font-family);
+  font-size: 15px;
+  font-weight: 400;
+  color: #AEAFB1;
+  line-height: 22px;
+}
+
 /* ── Settings panel ──────────────────────────────────────────────────── */
 
 .settings-body {
@@ -2363,6 +2390,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .settings-checkbox-list { display: flex; flex-direction: column; }
+.settings-checkbox-list.is-disabled { pointer-events: none; opacity: 0.38; }
 
 .settings-checkbox-item {
   display: flex;
@@ -2895,6 +2923,12 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
   cursor: pointer;
 }
 .pay-prompt__no:active { background: #f3f3f3; }
+
+.pay-prompt__yes--danger {
+  background: #D32F2F;
+  color: #ffffff;
+}
+.pay-prompt__yes--danger:hover:not(:disabled) { filter: brightness(1.08); }
 
 /* ── QR Scanner ─────────────────────────────────────────────────────── */
 
@@ -4557,6 +4591,72 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 [data-theme="dark"] .pay-prompt__no:active {
   background: #353535;
 }
+[data-theme="dark"] .btn--black {
+  background: #F3F3F3;
+  color: #141515;
+}
+
+/* ── Comprehensive dark-mode text / background fixes ─────────────────── */
+
+/* Account field inputs */
+[data-theme="dark"] .account-field__value {
+  color: var(--text-primary);
+}
+[data-theme="dark"] .account-field__value::placeholder,
+[data-theme="dark"] .otp-field .account-field__value::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+[data-theme="dark"] .otp-field .account-field__label {
+  color: var(--text-secondary);
+}
+[data-theme="dark"] #change-pwd-panel .account-field__label {
+  color: var(--text-primary);
+}
+
+/* Filter chips */
+[data-theme="dark"] .filter-chip {
+  background: var(--bg-secondary);
+}
+
+/* Settings checkboxes */
+[data-theme="dark"] .settings-checkbox {
+  background: var(--bg-secondary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+[data-theme="dark"] .settings-checkbox.is-checked::after {
+  background: var(--text-primary);
+}
+[data-theme="dark"] .settings-checkbox-label {
+  color: var(--text-primary);
+}
+
+/* History card text */
+[data-theme="dark"] .hist-card__date,
+[data-theme="dark"] .hist-card__amount {
+  color: var(--text-primary);
+}
+[data-theme="dark"] .hist-card__address,
+[data-theme="dark"] .hist-card__plate,
+[data-theme="dark"] .hist-card__time {
+  color: var(--text-secondary);
+}
+
+/* Notification list */
+[data-theme="dark"] .notif-item {
+  border-bottom-color: var(--divider);
+}
+[data-theme="dark"] .notif-item:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .notif-item__title {
+  color: var(--text-primary);
+}
+[data-theme="dark"] .notif-item__preview {
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .notif-item__time {
+  color: var(--text-muted);
+}
 
 /* ── Install prompt modal ────────────────────────────────────────────────── */
 
@@ -4756,3 +4856,290 @@ input[type="password"]::-webkit-credentials-auto-fill-button { display: none; }
 }
 
 .voice-overlay__close:active { opacity: 0.7; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LOGIN PANEL
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.login-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-panel__body {
+  padding-top: 16px;
+  flex: 1;
+}
+
+/* Placeholder: gray (same as register) */
+#login-panel .account-field__value::placeholder {
+  color: #AEAFB1;
+}
+
+.login-panel__footer {
+  flex-shrink: 0;
+  padding: 12px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.login-register-link {
+  background: none;
+  border: none;
+  font-family: 'Wix Madefor Text', var(--font-family);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #000;
+  cursor: pointer;
+  text-align: center;
+}
+
+.login-register-link span {
+  text-decoration: underline;
+}
+
+.login-forgot-btn {
+  background: none;
+  border: none;
+  font-family: 'Wix Madefor Text', var(--font-family);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: right;
+  align-self: flex-end;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REGISTER PANEL
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Body: tighter top padding to match Figma 16px gap */
+.register-panel__body {
+  padding-top: 16px;
+}
+
+/* Labels: Figma spec uses weight 400 / 500, opacity 0.70 */
+.reg-label {
+  font-weight: 400;
+  opacity: 0.70;
+  color: #26282A;
+}
+.reg-label--medium { font-weight: 500; }
+
+/* Placeholder override: gray (not black like the account display panel) */
+#register-panel .account-field__value::placeholder {
+  color: #AEAFB1;
+}
+
+/* Password hint */
+.reg-hint {
+  font-family: 'Noto Sans', var(--font-family);
+  font-size: 12px;
+  font-weight: 400;
+  color: #515357;
+  margin: 4px 0 0 14px;
+}
+
+/* Terms checkbox row */
+.reg-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.reg-terms__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.reg-terms__box {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: #F3F3F3;
+  border-radius: 2.5px;
+  border: 1px solid #515357;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
+}
+
+.reg-terms__input:checked + .reg-terms__box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.reg-terms__input:checked + .reg-terms__box::after {
+  content: '';
+  display: block;
+  width: 13px;
+  height: 8px;
+  border-left: 2px solid #000;
+  border-bottom: 2px solid #000;
+  transform: rotate(-45deg) translateY(-2px);
+}
+
+.reg-terms__text {
+  font-family: 'Rubik', var(--font-family);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--text-primary);
+}
+
+/* Submit button — dark variant */
+.reg-submit-btn {
+  width: 100%;
+  height: 48px;
+  background: #141515;
+  color: #fff;
+  font-family: 'Rubik', var(--font-family);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: filter var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.reg-submit-btn:active:not(:disabled) { transform: scale(0.97); filter: brightness(1.2); }
+
+.reg-submit-btn:disabled,
+.reg-submit-btn[aria-disabled="true"] {
+  background: #D6D6D6;
+  color: #9A9A9A;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   WELCOME SCREEN — full-screen onboarding, shown on first open
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.welcome-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--duration-page) var(--ease-out);
+}
+
+.welcome-screen.is-dismissing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.welcome-screen__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.90) 100%),
+    url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&q=80') center/cover no-repeat,
+    #1a1a1a;
+}
+
+.welcome-screen__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 36px 16px 20px;
+}
+
+.welcome-screen__top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-screen__logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.welcome-screen__brand {
+  font-family: 'Rubik', var(--font-family);
+  font-size: 24px;
+  font-weight: 700;
+  color: #F3F3F3;
+  line-height: 1;
+}
+
+.welcome-screen__headline {
+  margin-top: 158px;
+  text-align: center;
+  color: #AFEE00;
+  font-family: 'Rubik', var(--font-family);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 44px;
+}
+
+.welcome-screen__sub {
+  margin-top: 12px;
+  text-align: center;
+  color: #F3F3F3;
+  font-family: 'Wix Madefor Text', var(--font-family);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.welcome-screen__actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.welcome-screen__btn-primary {
+  width: 100%;
+  height: 48px;
+  background: #AFEE00;
+  color: #000;
+  font-family: 'Rubik', var(--font-family);
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: filter var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.welcome-screen__btn-primary:active { transform: scale(0.97); filter: brightness(0.95); }
+
+.welcome-screen__btn-secondary {
+  width: 100%;
+  height: 48px;
+  background: transparent;
+  color: #fff;
+  font-family: 'Rubik', var(--font-family);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  border: 1px solid #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out),
+              transform  var(--duration-fast) var(--ease-out);
+}
+
+.welcome-screen__btn-secondary:active { transform: scale(0.97); background: rgba(255,255,255,0.08); }

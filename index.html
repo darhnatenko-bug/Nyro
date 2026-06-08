@@ -649,15 +649,15 @@
           <div class="account-panel__body">
             <div class="account-field">
               <label class="account-field__label" for="field-name">Повне ім'я</label>
-              <input class="account-field__value" id="field-name" type="text" value="Марія Коваленко" autocomplete="name">
+              <input class="account-field__value" id="field-name" type="text" value="" autocomplete="name">
             </div>
             <div class="account-field">
               <label class="account-field__label" for="field-email">Email</label>
-              <input class="account-field__value" id="field-email" type="email" value="maria.kovalenko@gmail.com" autocomplete="email">
+              <input class="account-field__value" id="field-email" type="email" value="" autocomplete="email">
             </div>
             <div class="account-field">
               <label class="account-field__label" for="field-phone">Номер телефону</label>
-              <input class="account-field__value" id="field-phone" type="tel" value="+38 (097) 456 78 90" autocomplete="tel">
+              <input class="account-field__value" id="field-phone" type="tel" value="" autocomplete="tel">
             </div>
             <button class="btn btn--black btn--full" id="btn-change-password">Змінити пароль</button>
             <button class="btn btn--secondary btn--full" id="btn-logout">Вийти з акаунту</button>
@@ -963,6 +963,13 @@
           </div>
           <div class="settings-body">
 
+            <p class="settings-section-label">Тема</p>
+
+            <div class="settings-card settings-card--row">
+              <span class="settings-row-title">Темна тема</span>
+              <button class="settings-toggle is-off" id="toggle-dark-theme" aria-label="Темна тема"></button>
+            </div>
+
             <p class="settings-section-label">Сповіщення</p>
 
             <div class="settings-card">
@@ -987,13 +994,6 @@
                 <label class="settings-checkbox-item"><span class="settings-checkbox"></span><span class="settings-checkbox-label">На електронну пошту</span></label>
                 <label class="settings-checkbox-item"><span class="settings-checkbox is-checked"></span><span class="settings-checkbox-label">SMS-повідомлення</span></label>
               </div>
-            </div>
-
-            <p class="settings-section-label">Тема</p>
-
-            <div class="settings-card settings-card--row">
-              <span class="settings-row-title">Темна тема</span>
-              <button class="settings-toggle is-off" id="toggle-dark-theme" aria-label="Темна тема"></button>
             </div>
 
           </div>
@@ -1577,38 +1577,49 @@
           </div>
           <div class="account-panel__body register-panel__body">
             <div class="account-field">
-              <label class="account-field__label reg-label" for="reg-name">ПІБ*</label>
+              <label class="account-field__label" for="reg-name">ПІБ*</label>
               <input class="account-field__value" id="reg-name" type="text"
                      placeholder="Прізвище Ім'я По батькові" autocomplete="name">
             </div>
             <div class="account-field">
-              <label class="account-field__label reg-label" for="reg-email">Електронна пошта*</label>
+              <label class="account-field__label" for="reg-email">Електронна пошта*</label>
               <input class="account-field__value" id="reg-email" type="email"
                      placeholder="example@email.com" autocomplete="email">
             </div>
             <div class="account-field">
-              <label class="account-field__label reg-label" for="reg-phone">Номер телефону*</label>
+              <label class="account-field__label" for="reg-phone">Номер телефону*</label>
               <input class="account-field__value" id="reg-phone" type="tel"
                      placeholder="+380 XX XXX XXXX" maxlength="16" autocomplete="tel"
                      inputmode="numeric">
             </div>
             <div class="account-field">
-              <label class="account-field__label reg-label reg-label--medium" for="reg-password">Пароль</label>
-              <input class="account-field__value" id="reg-password" type="password"
-                     placeholder="Введіть пароль" autocomplete="new-password">
-              <p class="reg-hint">*Мінімум 10 символів</p>
+              <label class="account-field__label" for="reg-password">Пароль</label>
+              <div class="pwd-input-row">
+                <input class="account-field__value" id="reg-password" type="password"
+                       placeholder="Введіть пароль" autocomplete="new-password">
+                <button class="eye-toggle" id="toggle-reg-pwd" aria-label="Показати пароль" type="button">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <p class="pwd-hint">*Мінімум 10 символів</p>
             </div>
             <div class="account-field">
-              <label class="account-field__label reg-label reg-label--medium" for="reg-confirm">Підтвердіть пароль</label>
-              <input class="account-field__value" id="reg-confirm" type="password"
-                     placeholder="Повторіть пароль" autocomplete="new-password">
+              <label class="account-field__label" for="reg-confirm">Підтвердіть пароль</label>
+              <div class="pwd-input-row">
+                <input class="account-field__value" id="reg-confirm" type="password"
+                       placeholder="Повторіть пароль" autocomplete="new-password">
+                <button class="eye-toggle" id="toggle-reg-confirm" aria-label="Показати пароль" type="button">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <p class="pwd-error" id="reg-pwd-error" aria-live="polite"></p>
             </div>
             <label class="reg-terms" for="reg-terms-check">
               <input type="checkbox" id="reg-terms-check" class="reg-terms__input">
               <span class="reg-terms__box" aria-hidden="true"></span>
               <span class="reg-terms__text">Я погоджуюсь з Умовами використання та Політикою конфідеційності</span>
             </label>
-            <button class="reg-submit-btn" id="btn-register-submit" disabled aria-disabled="true">Зареєструватись</button>
+            <button class="btn btn--primary btn--full" id="btn-register-submit" disabled aria-disabled="true">Зареєструватись</button>
           </div>
         </div>
 

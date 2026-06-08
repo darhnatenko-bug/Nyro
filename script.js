@@ -958,9 +958,10 @@ function _isCurrentlyChargeable() {
   const now = new Date();
   const inBusiness = now.getHours() >= 8 && now.getHours() < 20;
   const isWeekday  = now.getDay() >= 1 && now.getDay() <= 5;
-  return c === '#e65100' ||
-    ((c === '#0288d1' || c === '#0f9d58') && inBusiness) ||
-    (c === '#9c27b0' && isWeekday && inBusiness);
+  if (c === '#e65100') return true;
+  if (c === '#9c27b0') return isWeekday && inBusiness;
+  // #0288d1, #0f9d58, and all unrecognised colours: paid 08:00–20:00
+  return inBusiness;
 }
 
 function _showSessionTimer(show) {
@@ -2688,6 +2689,8 @@ function makeEyeToggle(toggleId, inputId) {
 
 makeEyeToggle('toggle-new-pwd',     'new-password');
 makeEyeToggle('toggle-confirm-pwd', 'confirm-password');
+makeEyeToggle('toggle-reg-pwd',     'reg-password');
+makeEyeToggle('toggle-reg-confirm', 'reg-confirm');
 
 on($('btn-save-password'), 'click', () => {
   const newPwd  = $('new-password').value;
@@ -2917,10 +2920,38 @@ on($('btn-welcome-login'), 'click', () => {
   openAccountPanel(loginPanel);
 });
 
+// ── User data persistence ─────────────────────────────────────────────
+const _USER_KEY = 'nyro_user_v1';
+
+function _saveUser(data) {
+  try { localStorage.setItem(_USER_KEY, JSON.stringify(data)); } catch (_) {}
+}
+
+function _loadUser() {
+  try { return JSON.parse(localStorage.getItem(_USER_KEY) || 'null'); } catch (_) { return null; }
+}
+
+function _applyUserToAccountPanel(data) {
+  if (!data) return;
+  const fn = $('field-name');
+  const fe = $('field-email');
+  const fp = $('field-phone');
+  if (fn) fn.value = data.name  || '';
+  if (fe) fe.value = data.email || '';
+  if (fp) fp.value = data.phone || '';
+}
+
+// Restore on load
+_applyUserToAccountPanel(_loadUser());
+
 // ── Login panel ───────────────────────────────────────────────────────
 on($('btn-login-back'), 'click', () => closeAccountPanel(loginPanel));
 
 on($('btn-login-submit'), 'click', () => {
+  const email = ($('login-email').value || '').trim();
+  const userData = Object.assign(_loadUser() || {}, { email });
+  _saveUser(userData);
+  _applyUserToAccountPanel(userData);
   closeAccountPanel(loginPanel);
 });
 
@@ -2976,11 +3007,23 @@ on($('btn-register-back'), 'click', () => closeAccountPanel(registerPanel));
   });
 })();
 
-// Button enable/disable: phone must be full (+380 XX XXX XXXX = 12 digits) AND password >= 10 chars
 function updateRegisterBtn() {
+  const name    = ($('reg-name').value  || '').trim();
+  const email   = ($('reg-email').value || '').trim();
   const phoneDigits = ($('reg-phone').value || '').replace(/\D/g, '');
-  const pwd = ($('reg-password').value || '');
-  const valid = phoneDigits.length === 12 && pwd.length >= 10;
+  const pwd     = ($('reg-password').value || '');
+  const confirm = ($('reg-confirm').value  || '');
+  const terms   = $('reg-terms-check')?.checked;
+  const errEl   = $('reg-pwd-error');
+  const mismatch = confirm.length > 0 && pwd !== confirm;
+  if (errEl) errEl.textContent = mismatch ? '*Паролі не співпадають' : '';
+  const valid = name.length > 0 &&
+                email.length > 0 &&
+                phoneDigits.length === 12 &&
+                pwd.length >= 10 &&
+                pwd === confirm &&
+                confirm.length > 0 &&
+                !!terms;
   const btn = $('btn-register-submit');
   if (btn) {
     btn.disabled = !valid;
@@ -2988,7 +3031,12 @@ function updateRegisterBtn() {
   }
 }
 
-on($('reg-password'), 'input', updateRegisterBtn);
+on($('reg-name'),        'input',  updateRegisterBtn);
+on($('reg-email'),       'input',  updateRegisterBtn);
+on($('reg-password'),    'input',  updateRegisterBtn);
+on($('reg-confirm'),     'input',  updateRegisterBtn);
+on($('reg-phone'),       'input',  updateRegisterBtn);
+on($('reg-terms-check'), 'change', updateRegisterBtn);
 
 on($('btn-register-submit'), 'click', () => {
   const name    = $('reg-name').value.trim();
@@ -3005,13 +3053,10 @@ on($('btn-register-submit'), 'click', () => {
     return;
   }
 
-  // Write entered data into the account panel fields
-  const fieldName  = $('field-name');
-  const fieldEmail = $('field-email');
-  const fieldPhone = $('field-phone');
-  if (fieldName)  fieldName.value  = name;
-  if (fieldEmail) fieldEmail.value = email;
-  if (fieldPhone) fieldPhone.value = phone;
+  // Write entered data into the account panel fields and persist
+  const userData = { name, email, phone };
+  _saveUser(userData);
+  _applyUserToAccountPanel(userData);
 
   // Clear registration form and return to main screen
   [$('reg-name'), $('reg-email'), $('reg-phone'), $('reg-password'), $('reg-confirm')]

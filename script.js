@@ -3020,7 +3020,7 @@ function updateRegisterBtn() {
   const valid = name.length > 0 &&
                 email.length > 0 &&
                 phoneDigits.length === 12 &&
-                pwd.length >= 10 &&
+                pwd.length >= 8 &&
                 pwd === confirm &&
                 confirm.length > 0 &&
                 !!terms;
